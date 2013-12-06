@@ -4,6 +4,7 @@ import ciir.umass.edu.learning.DataPoint
 import collection.mutable.ListBuffer
 import java.io.{File, FileWriter}
 import scala.collection.JavaConversions._
+import edu.umass.ciir.strepsi.StringTools
 
 /**
  * Holds the featureDescription -> Idx map
@@ -12,8 +13,9 @@ import scala.collection.JavaConversions._
  * If ignoreNewFeatures == true, no new features are added to the map (used for prediction)
  *
  */
-class FeatureConv(trackIgnoreFeature:Boolean) {
-  var featureDescriptionMap = Map.empty[String,Int]
+class FeatureConv(trackIgnoreFeature:Boolean, _featureIdxs:Seq[(String,Int)]=Seq.empty) {
+  var featureDescriptionMap =  Map.empty[String,Int]
+
   val firstFeatureIdx = 1
   private var lastFeatureIdx = 0
   private var _ignoreNewFeatures:Boolean = true
@@ -22,6 +24,7 @@ class FeatureConv(trackIgnoreFeature:Boolean) {
   val IGNORED_FEATURE = "___ignored_feature___"
 
   if (trackIgnoreFeature) getOrCreateFeature(IGNORED_FEATURE)
+
 
   def getOrCreateFeature(featureName:String):Option[Int] = {
     featureDescriptionMap.get(featureName) match {
@@ -81,6 +84,7 @@ class FeatureConv(trackIgnoreFeature:Boolean) {
 
   def save(filename:String) {
     new File(filename).delete()
+    System.setProperty("file.encoding","UTF-8")
     val w = new FileWriter(new File(filename))
     for ((name, idx) <-featureDescriptionMap.toSeq.sortBy(_._2)){
       w.write(idx+"\t"+name+"\n")
@@ -90,4 +94,21 @@ class FeatureConv(trackIgnoreFeature:Boolean) {
     w.close()
   }
 
+  def load(filename:String) = {
+
+    val s = io.Source.fromFile(filename)
+    val featureIdxs=
+      for(line <- s.getLines().takeWhile(_.trim.length > 0)) yield {
+        val splits = StringTools.getSepSplits(line, sep = "\t", min = 2)
+        val id = splits(1)
+        val name = splits(0).toInt
+        id -> name
+      }
+    featureDescriptionMap = featureIdxs.toMap[String,Int]
+
+    s.close()
+  }
+
 }
+
+
