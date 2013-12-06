@@ -11,19 +11,16 @@ import scala.Double
 trait FeatureVec {
   def features: Seq[(String, Double)]
   def classLabelOpt: Option[Int]
+  def classPredictionOpt: Option[Prediction]
   def description: String
 }
 
-
-class LabeledFeatureVec(val features:Seq[(String, Double)],val classLabel:Int, val description:String) extends FeatureVec {
-  def classLabelOpt = Some(classLabel)
+class LabeledFeatureVec(val features:Seq[(String, Double)],val classLabelOpt:Option[Int], val description:String) extends FeatureVec {
+  private var _prediction:Option[Prediction] = None
+  def classPredictionOpt = _prediction
+  def prediction_=(value:Prediction) {_prediction = Some(value)}
+  def resetPrediction() = {_prediction = None}
 }
 
 case class Prediction(score:Double, rank:Int)
 
-class PredictedFeatureVec(val features:Seq[(String, Double)], val description:String) extends FeatureVec {
-  def classLabelOpt = None
-  private var _prediction:Option[Prediction] = None
-  def prediction = _prediction
-  def prediction_=(value:Prediction) {_prediction = Some(value)}
-}

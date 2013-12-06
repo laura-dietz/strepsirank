@@ -30,8 +30,8 @@ class RankListConv(trackIgnoreFeature:Boolean, ignoreNewFeatures:Boolean, normal
 //    assert(!qidmap.values.contains(qid), {"qidmap already contains an index for qid "+qid+". qidmap = "+qidmap})
     qidmap+= (currentQidInt -> qid)
     val rankList = new ListBuffer[DataPoint] //new RankList()
-    for (vector <- vectors) {
-      rankList += fc.convertToDataPoint(vector.features, vector.classLabel, currentQidInt, vector.description)
+    for (vector <- vectors; if vector.classLabelOpt.isDefined) {
+      rankList += fc.convertToDataPoint(vector.features, vector.classLabelOpt.get, currentQidInt, vector.description)
     }
     val wrappedRankList = new RankList(bufferAsJavaList(rankList))
     if (normalizeFeatures){

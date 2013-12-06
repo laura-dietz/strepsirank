@@ -13,7 +13,7 @@ import edu.umass.ciir.strepsi.StringTools
  * If ignoreNewFeatures == true, no new features are added to the map (used for prediction)
  *
  */
-class FeatureConv(trackIgnoreFeature:Boolean, _featureIdxs:Seq[(String,Int)]=Seq.empty) {
+class FeatureConv(trackIgnoreFeature:Boolean, __frozen:Boolean = false) {
   var featureDescriptionMap =  Map.empty[String,Int]
 
   val firstFeatureIdx = 1
@@ -22,6 +22,11 @@ class FeatureConv(trackIgnoreFeature:Boolean, _featureIdxs:Seq[(String,Int)]=Seq
   def ignoreNewFeatures = _ignoreNewFeatures
   def ignoreNewFeatures_=(ignoreNewFeatures:Boolean) { _ignoreNewFeatures=ignoreNewFeatures }
   val IGNORED_FEATURE = "___ignored_feature___"
+
+  private var _frozen:Boolean = __frozen
+  def frozen = _frozen
+  def frozen_=(frozen:Boolean) { _frozen=frozen }
+
 
   if (trackIgnoreFeature) getOrCreateFeature(IGNORED_FEATURE)
 
@@ -60,7 +65,7 @@ class FeatureConv(trackIgnoreFeature:Boolean, _featureIdxs:Seq[(String,Int)]=Seq
     val featureStrBuf = ListBuffer[String]()
     for ((featName, featValue)<- inputFeatures) {
       val fidxOpt =
-        if (ignoreNewFeatures)
+        if (ignoreNewFeatures || frozen)
           if (trackIgnoreFeature)
             getOrDefaultFeature(featName)
           else
@@ -94,6 +99,12 @@ class FeatureConv(trackIgnoreFeature:Boolean, _featureIdxs:Seq[(String,Int)]=Seq
     w.close()
   }
 
+  /**
+   * Loads a FeatureConv from disk.
+   *
+   * By default, FeatureConv is frozen after load.
+   * @param filename
+   */
   def load(filename:String) = {
 
     val s = io.Source.fromFile(filename)
@@ -105,6 +116,7 @@ class FeatureConv(trackIgnoreFeature:Boolean, _featureIdxs:Seq[(String,Int)]=Seq
         id -> name
       }
     featureDescriptionMap = featureIdxs.toMap[String,Int]
+    frozen = true
 
     s.close()
   }

@@ -18,18 +18,19 @@ object TestRank {
     val filename = "rankmodel"
 
     val train = new ListBuffer[LabeledFeatureVec]()
-    train += new LabeledFeatureVec(Seq("a"->1,"b"->0),1, "train1-1")
-    train += new LabeledFeatureVec(Seq("a"->1,"b"->0.5),1, "train1-2")
-    train += new LabeledFeatureVec(Seq("a"->0,"b"->0),0, "train0-1")
-    train += new LabeledFeatureVec(Seq("a"->0.1,"b"->0.5),0, "train0-2")
+    train += new LabeledFeatureVec(Seq("a"->1,"b"->0),Some(1), "train1-1")
+    train += new LabeledFeatureVec(Seq("a"->1,"b"->0.5),Some(1), "train1-2")
+    train += new LabeledFeatureVec(Seq("a"->0,"b"->0),Some(0), "train0-1")
+    train += new LabeledFeatureVec(Seq("a"->0.1,"b"->0.5),Some(0), "train0-2")
     
     val test = new ListBuffer[LabeledFeatureVec]()
-    test += new LabeledFeatureVec(Seq("a"->0.2,"b"->0),0, "test0-1")
-    test += new LabeledFeatureVec(Seq("a"->0.9,"b"->0),1, "test1-1")
-    test += new LabeledFeatureVec(Seq("a"->1,"b"->0.9, "c" -> 0.5),1, "test1-2")
-    test += new LabeledFeatureVec(Seq("a"->0.0,"b"->0.9),0, "test0-2")
+    test += new LabeledFeatureVec(Seq("a"->0.2,"b"->0),Some(0), "test0-1")
+    test += new LabeledFeatureVec(Seq("a"->0.9,"b"->0),Some(1), "test1-1")
+    test += new LabeledFeatureVec(Seq("a"->1,"b"->0.9, "c" -> 0.2),Some(1), "test1-2")
+    test += new LabeledFeatureVec(Seq("a"->0.0,"b"->0.9),Some(0), "test0-2")
     
     val trainingList = rankListConv.createRankList(train, "1")
+    rankListConv.fc.frozen = true
     val toPredictList = rankListConv.createRankList(test, "2")
 
     trainTestAndSave(rankListConv, trainingList, filename, toPredictList)
@@ -38,7 +39,7 @@ object TestRank {
     println("==============\n============\n============")
     // ============ test re-loading =======
 
-    loadAndPredict(trainingList, filename, test)
+    loadAndPredict(filename, test)
 
 
   }
@@ -56,15 +57,16 @@ object TestRank {
     predictedRanking.foreach(println _)
   }
 
-  def loadAndPredict(trainingList: RankList, filename: String, test: ListBuffer[LabeledFeatureVec]) {
+  def loadAndPredict(filename: String, testdata: ListBuffer[LabeledFeatureVec]) {
     val rt2 = new RankerTrainer()
-    val rankListConv2 = new RankListConv(trackIgnoreFeature = false, ignoreNewFeatures = false)
+    val rankListConv2 = new RankListConv(trackIgnoreFeature = false, ignoreNewFeatures = true)
     rankListConv2.fc.load(filename + ".featureconv")
+
 
     val ranker2 = rt2.createEmptyRanker(RANKER_TYPE.COOR_ASCENT, rankListConv2.fc.featureIndices, new APScorer())
     ranker2.load(filename + ".ranklib")
 
-    val toPredictList2 = rankListConv2.createRankList(test, "2")
+    val toPredictList2 = rankListConv2.createRankList(testdata, "2")
 
     val predictedRanking2 = rankListToSeq(ranker2.rank(toPredictList2), ranker2.eval)
     predictedRanking2.foreach(println _)
