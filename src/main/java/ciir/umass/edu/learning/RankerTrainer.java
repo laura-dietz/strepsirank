@@ -45,6 +45,15 @@ public class RankerTrainer {
 		//printTrainingTime();
 		return ranker;
 	}
+
+    public Ranker createEmptyRanker(RANKER_TYPE type,int[] features, MetricScorer scorer)
+    {
+        Ranker r =rf.createRanker(type);
+        r.setFeatures(features);
+        r.setMetricScorer(scorer);
+        return r;
+    }
+
 	public double getTrainingTime()
 	{
 		return trainingTime;
