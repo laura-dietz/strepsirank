@@ -1,6 +1,5 @@
 package edu.umass.ciir.strepsirank.rank
 
-import edu.umass.ciir.strepsirank.rank.antirank.{LabeledFeatureVec, RankListConv}
 import scala.collection.mutable.ListBuffer
 import ciir.umass.edu.learning._
 import ciir.umass.edu.metric.APScorer

@@ -1,4 +1,4 @@
-package edu.umass.ciir.strepsirank.rank.antirank
+package edu.umass.ciir.strepsirank.rank
 
 import java.lang.String
 import scala.Double
@@ -26,6 +26,7 @@ class LabeledFeatureVec(val features:Seq[(String, Double)],val classLabelOpt:Opt
     predictLabel.prediction=Some(value)
     predictLabel
   }
+  override def toString = description+" ("+classLabelOpt+") = "+prediction.toString
 }
 
 case class Prediction(score:Double, rank:Int)
