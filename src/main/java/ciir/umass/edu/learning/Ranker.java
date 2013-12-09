@@ -151,35 +151,12 @@ abstract public class Ranker {
      * LD 2013/10/09: ...therefore I made them abstract.
 	 */
 	abstract public void init();
-//	{
-//	}
 	abstract public void learn();
-//	{
-//	}
 	abstract public double eval(DataPoint p);
-//	{
-//		return -1.0;
-//	}
 	abstract public Ranker clone();
-//	{
-//		return null;
-//	}
 	abstract public String toString();
-//	{
-//		return "";
-//	}
 	abstract public String model();
-//	{
-//		return "[Not yet implemented]";
-//	}
 	abstract public void load(String fn);
-//	{
-//	}
 	abstract public void printParameters();
-//	{
-//	}
 	abstract public String name();
-//	{
-//		return "";
-//	}
 }
