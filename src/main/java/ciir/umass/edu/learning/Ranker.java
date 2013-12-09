@@ -25,7 +25,7 @@ import ciir.umass.edu.utilities.MergeSorter;
  * 
  * This class implements the generic Ranker interface. Each ranking algorithm implemented has to extend this class. 
  */
-public class Ranker {
+abstract public class Ranker {
 	public static boolean verbose = true;
 
 	protected List<RankList> samples = new ArrayList<RankList>();//training samples
@@ -143,43 +143,43 @@ public class Ranker {
 	
 	protected void copy(double[] source, double[] target)
 	{
-		for(int j=0;j<source.length;j++)
-			target[j] = source[j];
+        System.arraycopy(source, 0, target, 0, source.length);
 	}
 	
 	/**
 	 * HAVE TO BE OVER-RIDDEN IN SUB-CLASSES
+     * LD 2013/10/09: ...therefore I made them abstract.
 	 */
-	public void init()
-	{
-	}
-	public void learn()
-	{
-	}
-	public double eval(DataPoint p)
-	{
-		return -1.0;
-	}
-	public Ranker clone()
-	{
-		return null;
-	}
-	public String toString()
-	{
-		return "";
-	}
-	public String model()
-	{
-		return "[Not yet implemented]";
-	}
-	public void load(String fn)
-	{
-	}
-	public void printParameters()
-	{
-	}
-	public String name()
-	{
-		return "";
-	}
+	abstract public void init();
+//	{
+//	}
+	abstract public void learn();
+//	{
+//	}
+	abstract public double eval(DataPoint p);
+//	{
+//		return -1.0;
+//	}
+	abstract public Ranker clone();
+//	{
+//		return null;
+//	}
+	abstract public String toString();
+//	{
+//		return "";
+//	}
+	abstract public String model();
+//	{
+//		return "[Not yet implemented]";
+//	}
+	abstract public void load(String fn);
+//	{
+//	}
+	abstract public void printParameters();
+//	{
+//	}
+	abstract public String name();
+//	{
+//		return "";
+//	}
 }
