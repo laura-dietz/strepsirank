@@ -1,16 +1,20 @@
 package edu.umass.ciir.strepsirank.rank
 
-import ciir.umass.edu.learning.RANKER_TYPE
+import ciir.umass.edu.learning.{Ranker, RANKER_TYPE}
 import ciir.umass.edu.metric.{APScorer, MetricScorer}
 import ciir.umass.edu.utilities.MyThreadPool
 
 /**
+ * Static interface to the re-ranking lib
  * User: dietz
  * Date: 12/9/13
  * Time: 3:53 PM
  */
 object RankTools {
   type MultiRankings = Seq[(String, Seq[FeatureVec])]
+  Ranker.verbose = false
+
+
 
   def trainPredict(rankertype:RANKER_TYPE, metricScorer:MetricScorer, train:MultiRankings, modelfilename:Option[String]=None, testData:Option[MultiRankings]=None):Option[MultiRankings] = {
     new Reranker(rankertype, metricScorer).trainPredict(train, modelfilename, testData)

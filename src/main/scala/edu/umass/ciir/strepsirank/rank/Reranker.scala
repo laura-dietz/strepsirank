@@ -6,7 +6,7 @@ import scala.collection.JavaConversions._
 import RankTools.MultiRankings
 
 /**
- * Main re-rank interface
+ * Scala friendly interface to the re-ranking classes.
  *
  *
  * User: dietz
@@ -27,10 +27,19 @@ class Reranker(rankertype:RANKER_TYPE = RANKER_TYPE.COOR_ASCENT, metricScorer:Me
 
     val ranker = if(testData.isDefined){
       val validationList = rankListConv.multiDataToRankList(testData.get)
-      rt.train(rankertype, trainingList,  validationList, featureIndices, metricScorer)
+      val r = rt.train(rankertype, trainingList,  validationList, featureIndices, metricScorer)
+      println(metricScorer.name + " on training data: " + r.getScoreOnTrainingData)
+      println(metricScorer.name + " on validation data: " + r.getScoreOnValidationData)
+      r
     } else {
-      rt.train(rankertype, trainingList,  featureIndices, metricScorer)
+      val r=rt.train(rankertype, trainingList,  featureIndices, metricScorer)
+      println(metricScorer.name + " on training data: " + r.getScoreOnTrainingData)
+      r
     }
+
+
+
+
 
     modelfilename match {
       case Some(filename) =>
