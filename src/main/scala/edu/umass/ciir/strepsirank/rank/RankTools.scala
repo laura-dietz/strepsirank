@@ -2,6 +2,7 @@ package edu.umass.ciir.strepsirank.rank
 
 import ciir.umass.edu.learning.RANKER_TYPE
 import ciir.umass.edu.metric.{APScorer, MetricScorer}
+import ciir.umass.edu.utilities.MyThreadPool
 
 /**
  * User: dietz
@@ -30,4 +31,8 @@ object RankTools {
     new LabeledFeatureVec(features, trainLabel, description)
   }
 
+
+  def setThreadPoolSize(poolsize:Int){
+    MyThreadPool.init(poolsize)
+  }
 }

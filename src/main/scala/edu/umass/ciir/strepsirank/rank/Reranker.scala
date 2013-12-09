@@ -1,6 +1,6 @@
 package edu.umass.ciir.strepsirank.rank
 
-import ciir.umass.edu.learning.{RANKER_TYPE, RankerTrainer}
+import ciir.umass.edu.learning.{Ranker, RANKER_TYPE, RankerTrainer}
 import ciir.umass.edu.metric.{MetricScorer, APScorer}
 import scala.collection.JavaConversions._
 import RankTools.MultiRankings
@@ -19,28 +19,40 @@ class Reranker(rankertype:RANKER_TYPE = RANKER_TYPE.COOR_ASCENT, metricScorer:Me
     val rankListConv = new RankListConv(trackIgnoreFeature = false, ignoreNewFeatures = false)
 
     val trainingList = rankListConv.multiDataToRankList( train)
+
+
+
     val rt = new RankerTrainer()
     val featureIndices = rankListConv.fc.featureIndices
 
-    val ranker = rt.train(rankertype, trainingList, featureIndices, metricScorer)
+    val ranker = if(testData.isDefined){
+      val validationList = rankListConv.multiDataToRankList(testData.get)
+      rt.train(rankertype, trainingList,  validationList, featureIndices, metricScorer)
+    } else {
+      rt.train(rankertype, trainingList,  featureIndices, metricScorer)
+    }
 
     modelfilename match {
       case Some(filename) =>
         ranker.save(modelfilename + ".ranklib")
         rankListConv.fc.save(modelfilename + ".featureconv")
-      case _ => {}
+      case _ =>
     }
 
     testData.map { test => {
-        val toPredictList = rankListConv.multiDataToRankList( test)
-        val rankLists = ranker.rank(toPredictList)
-        val predictedRankings = rankListConv.rankListsToMultiData(
-          rankLists, test, ranker.eval)
-        predictedRankings
-      }
-    }
+      predict(rankListConv, test, ranker)
+    }}
   }
-  
+
+
+  private def predict(rankListConv: RankListConv, test: RankTools.MultiRankings, ranker: Ranker): RankTools.MultiRankings = {
+    val toPredictList = rankListConv.multiDataToRankList(test)
+    val rankLists = ranker.rank(toPredictList)
+    val predictedRankings = rankListConv.rankListsToMultiData(
+      rankLists, test, ranker.eval)
+    predictedRankings
+  }
+
   def loadPredict(modelfilename:String,testData:MultiRankings ):MultiRankings = {
     val rt2 = new RankerTrainer()
     val rankListConv = new RankListConv(trackIgnoreFeature = false, ignoreNewFeatures = true)
@@ -48,10 +60,7 @@ class Reranker(rankertype:RANKER_TYPE = RANKER_TYPE.COOR_ASCENT, metricScorer:Me
     val ranker = rt2.createEmptyRanker(rankertype, rankListConv.fc.featureIndices, metricScorer)
     ranker.load(modelfilename + ".ranklib")
 
-    val toPredictList = rankListConv.multiDataToRankList( testData)
-    val rankLists = ranker.rank(toPredictList)
-    val predictedRankings = rankListConv.rankListsToMultiData( rankLists, testData, ranker.eval)
-    predictedRankings
+    predict(rankListConv, testData, ranker)
   }
 
 
