@@ -34,6 +34,7 @@ public class MyThreadPool extends ThreadPoolExecutor {
 	private static MyThreadPool singleton = null;
 	public static MyThreadPool getInstance()
 	{
+        if(singleton == null) init(1);
 		return singleton;
 	}
 	
