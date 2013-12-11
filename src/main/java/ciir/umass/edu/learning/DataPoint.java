@@ -155,7 +155,7 @@ public class DataPoint {
 	}
 	public void resetCached()
 	{
-		cached = -100000000.0f;;
+		cached = -100000000.0f;
 	}
 	
 	public static int getFeatureCount()
@@ -168,9 +168,7 @@ public class DataPoint {
 	{
 		if(fid <= 0 || fid >= fVals.length)
 		{
-			System.out.println("Error in DataPoint::getFeatureValue(): requesting unspecified feature, fid=" + fid);
-			System.out.println("System will now exit.");
-			System.exit(1);
+			throw new RuntimeException("Error in DataPoint::getFeatureValue(): requesting unspecified feature, fid=" + fid);
 		}
 		if(fVals[fid] == UNKNOWN)//value for unspecified feature is 0
 			return 0;
@@ -180,8 +178,7 @@ public class DataPoint {
 	{
 		if(fid <= 0 || fid >= fVals.length)
 		{
-			System.out.println("Error in DataPoint::setFeatureValue(): feature (id=" + fid + ") not found.");
-			System.exit(1);
+            throw new RuntimeException("Error in DataPoint::setFeatureValue(): feature (id=" + fid + ") not found.");
 		}
 		fVals[fid] = fval;
 	}	

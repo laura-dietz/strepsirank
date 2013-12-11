@@ -31,8 +31,10 @@ object RankTools {
    *@param trainLabel optional, a label for training / validation
    * @return
    */
-  def createFeatureVec(description:String, features:Seq[(String, Double)], trainLabel:Option[Int]):FeatureVec = {
-    new LabeledFeatureVec(features, trainLabel, description)
+  def createFeatureVec(description:String, features:Seq[(String, Double)], trainLabel:Option[Int], defaultFeatures:Map[String, Double]=Map.empty):FeatureVec = {
+    val uncoveredFeatures = defaultFeatures.keySet diff features.map(_._1).toSet
+    val fullFeatures = features ++ uncoveredFeatures.map(feat => feat -> defaultFeatures(feat))
+    new LabeledFeatureVec(fullFeatures, trainLabel, description)
   }
 
 
