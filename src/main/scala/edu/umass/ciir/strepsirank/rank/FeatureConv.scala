@@ -58,6 +58,14 @@ class FeatureConv(trackIgnoreFeature:Boolean, __frozen:Boolean = false) {
 
   def featureIndices = (firstFeatureIdx to lastFeatureIdx).toArray
 
+  def featureReverseLookup: Seq[String] = {
+    val result = new Array[String](lastFeatureIdx + 1)
+
+    for ((fname, fidx) <- featureDescriptionMap) {
+      result(fidx) = fname
+    }
+    result.toBuffer
+  }
 
 
   // 3 qid:1 1:1 2:1 3:0 4:0.2 5:0 # 1A
@@ -116,6 +124,7 @@ class FeatureConv(trackIgnoreFeature:Boolean, __frozen:Boolean = false) {
         id -> name
       }
     featureDescriptionMap = featureIdxs.toMap[String,Int]
+    lastFeatureIdx = featureDescriptionMap.maxBy(_._2)._2
     frozen = true
 
     s.close()
