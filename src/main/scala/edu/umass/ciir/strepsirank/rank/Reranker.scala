@@ -13,26 +13,26 @@ import RankTools.MultiRankings
  * Date: 12/6/13
  * Time: 5:04 PM
  */
-class Reranker(rankertype:RANKER_TYPE = RANKER_TYPE.COOR_ASCENT, metricScorer:MetricScorer = new APScorer()) {
+class Reranker(rankertype: RANKER_TYPE = RANKER_TYPE.COOR_ASCENT, metricScorer: MetricScorer = new APScorer()) {
 
-  def trainPredict(train:MultiRankings, modelfilename:Option[String]=None, testData:Option[MultiRankings]=None):Option[MultiRankings] = {
+  def trainPredict(train: MultiRankings, modelfilename: Option[String] = None, testData: Option[MultiRankings] = None): Option[MultiRankings] = {
     val rankListConv = new RankListConv(trackIgnoreFeature = false, ignoreNewFeatures = false)
 
-    val trainingList = rankListConv.multiDataToRankList( train)
+    val trainingList = rankListConv.multiDataToRankList(train)
 
 
 
     val rt = new RankerTrainer()
     val featureIndices = rankListConv.fc.featureIndices
 
-    val ranker = if(testData.isDefined){
+    val ranker = if (testData.isDefined) {
       val validationList = rankListConv.multiDataToRankList(testData.get)
-      val r = rt.train(rankertype, trainingList,  validationList, featureIndices, metricScorer)
+      val r = rt.train(rankertype, trainingList, validationList, featureIndices, metricScorer)
       println(metricScorer.name + " on training data: " + r.getScoreOnTrainingData)
       println(metricScorer.name + " on validation data: " + r.getScoreOnValidationData)
       r
     } else {
-      val r=rt.train(rankertype, trainingList,  featureIndices, metricScorer)
+      val r = rt.train(rankertype, trainingList, featureIndices, metricScorer)
       println(metricScorer.name + " on training data: " + r.getScoreOnTrainingData)
       r
     }
@@ -43,14 +43,16 @@ class Reranker(rankertype:RANKER_TYPE = RANKER_TYPE.COOR_ASCENT, metricScorer:Me
 
     modelfilename match {
       case Some(filename) =>
-        ranker.save(modelfilename + ".ranklib")
-        rankListConv.fc.save(modelfilename + ".featureconv")
+        ranker.save(filename + ".ranklib")
+        rankListConv.fc.save(filename + ".featureconv")
       case _ =>
     }
 
-    testData.map { test => {
-      predict(rankListConv, test, ranker)
-    }}
+    testData.map {
+      test => {
+        predict(rankListConv, test, ranker)
+      }
+    }
   }
 
 
@@ -62,7 +64,7 @@ class Reranker(rankertype:RANKER_TYPE = RANKER_TYPE.COOR_ASCENT, metricScorer:Me
     predictedRankings
   }
 
-  def loadPredict(modelfilename:String,testData:MultiRankings ):MultiRankings = {
+  def loadPredict(modelfilename: String, testData: MultiRankings): MultiRankings = {
     val rt2 = new RankerTrainer()
     val rankListConv = new RankListConv(trackIgnoreFeature = false, ignoreNewFeatures = true)
     rankListConv.fc.load(modelfilename + ".featureconv")
@@ -71,8 +73,6 @@ class Reranker(rankertype:RANKER_TYPE = RANKER_TYPE.COOR_ASCENT, metricScorer:Me
 
     predict(rankListConv, testData, ranker)
   }
-
-
 
 
 }
