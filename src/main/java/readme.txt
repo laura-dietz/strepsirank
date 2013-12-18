@@ -114,8 +114,8 @@ Params:
 	[ -test <file> ]	Specify if you want to evaluate the trained model on this data (default=unspecified)
 	[ -validate <file> ]	Specify if you want to tune your system on the validation data (default=unspecified)
 				If specified, the final model will be the one that performs best on the validation data
-	[ -tvs <x \in [0..1]> ]	Set train-validation split to be (x)(1.0-x)
-	[ -tts <x \in [0..1]> ]	Set train-test split to be (x)(1.0-x). -tts will override -tvs
+	[ -tvs <name \in [0..1]> ]	Set train-validation split to be (name)(1.0-name)
+	[ -tts <name \in [0..1]> ]	Set train-test split to be (name)(1.0-name). -tts will override -tvs
 	[ -kcv <k> ]		Specify if you want to perform k-fold cross validation using ONLY the specified training data (default=NoCV)
 	[ -norm <method>]	Normalize feature vectors (default=no-normalization). Method can be:
 				sum: normalize each feature by the sum of all its values
