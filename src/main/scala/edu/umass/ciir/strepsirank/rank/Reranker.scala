@@ -15,7 +15,7 @@ import RankTools.MultiRankings
  */
 class Reranker(rankertype: RANKER_TYPE = RANKER_TYPE.COOR_ASCENT, metricScorer: MetricScorer = new APScorer()) {
 
-  def trainPredict(train: MultiRankings, modelfilename: Option[String] = None, testData: Option[MultiRankings] = None): Option[MultiRankings] = {
+  def trainPredict(train: MultiRankings, modelfilename: Option[String] = None, testData: Option[MultiRankings] = None, submitTrainScore: (Double, String) => Unit = Reranker.printTrainScore, submitValidationScore: (Double, String) => Unit = Reranker.printValidationScore): Option[MultiRankings] = {
     val rankListConv = new RankListConv(trackIgnoreFeature = false, ignoreNewFeatures = false)
 
     val trainingList = rankListConv.multiDataToRankList(train)
@@ -28,12 +28,15 @@ class Reranker(rankertype: RANKER_TYPE = RANKER_TYPE.COOR_ASCENT, metricScorer: 
     val ranker = if (testData.isDefined) {
       val validationList = rankListConv.multiDataToRankList(testData.get)
       val r = rt.train(rankertype, trainingList, validationList, featureIndices, metricScorer)
-      println(metricScorer.name + " on training data: " + r.getScoreOnTrainingData)
-      println(metricScorer.name + " on validation data: " + r.getScoreOnValidationData)
+      //      println(metricScorer.name + " on training data: " + r.getScoreOnTrainingData)
+      //      println(metricScorer.name + " on validation data: " + r.getScoreOnValidationData)
+      submitTrainScore(r.getScoreOnTrainingData, metricScorer.name)
+      submitValidationScore(r.getScoreOnValidationData, metricScorer.name)
       r
     } else {
       val r = rt.train(rankertype, trainingList, featureIndices, metricScorer)
-      println(metricScorer.name + " on training data: " + r.getScoreOnTrainingData)
+      //      println(metricScorer.name + " on training data: " + r.getScoreOnTrainingData)
+      submitTrainScore(r.getScoreOnTrainingData, metricScorer.name)
       r
     }
 
@@ -77,4 +80,12 @@ class Reranker(rankertype: RANKER_TYPE = RANKER_TYPE.COOR_ASCENT, metricScorer: 
 
 }
 
+object Reranker {
+  val printTrainScore: (Double, String) => Unit = {
+    (score, name) => println(name + " on training data: " + score)
+  }
+  val printValidationScore: (Double, String) => Unit = {
+    (score, name) => println(name + " on validation data: " + score)
+  }
+}
 

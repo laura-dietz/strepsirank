@@ -1,7 +1,7 @@
 package edu.umass.ciir.strepsirank.collector
 
 import ciir.umass.edu.learning.RANKER_TYPE
-import edu.umass.ciir.strepsirank.rank.{FeatureVec, RankTools}
+import edu.umass.ciir.strepsirank.rank.{Reranker, FeatureVec, RankTools}
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable
 import ciir.umass.edu.metric.APScorer
@@ -14,7 +14,7 @@ import scala.Some
  * Time: 6:30 PM
  */
 class StrepsiReRanker(featureCollector: StrepsiFeatureCollector, rankerType: RANKER_TYPE) {
-  def trainTestSplit(trainQueries: Set[String], defaultFeatures: Option[Seq[(String, Double)]], testQueries: Option[Set[String]], modelfilename: Option[String] = None): Option[MultiRankings] = {
+  def trainTestSplit(trainQueries: Set[String], defaultFeatures: Option[Seq[(String, Double)]], testQueries: Option[Set[String]], modelfilename: Option[String] = None, submitTrainScore: (Double, String) => Unit = Reranker.printTrainScore, submitValidationScore: (Double, String) => Unit = Reranker.printValidationScore): Option[MultiRankings] = {
     val data = featureCollector
 
     val trainRankings = constructFeatureVectors(trainQueries, data, defaultFeatures)
@@ -24,7 +24,7 @@ class StrepsiReRanker(featureCollector: StrepsiFeatureCollector, rankerType: RAN
     val testRankings = constructFeatureVectors(testQuerySet, data, defaultFeatures)
 
     //    val resultOpt = RankTools.trainPredict(rankerType, new APScorer(), trainRankings, None,None)
-    val resultOpt = RankTools.trainPredict(rankerType, new APScorer(), trainRankings, modelfilename, Some(testRankings))
+    val resultOpt = RankTools.trainPredict(rankerType, new APScorer(), trainRankings, modelfilename, Some(testRankings), submitTrainScore, submitValidationScore)
 
     resultOpt
   }

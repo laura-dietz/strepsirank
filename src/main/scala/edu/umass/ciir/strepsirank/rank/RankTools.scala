@@ -15,12 +15,11 @@ object RankTools {
   Ranker.verbose = false
 
 
-
-  def trainPredict(rankertype:RANKER_TYPE, metricScorer:MetricScorer, train:MultiRankings, modelfilename:Option[String]=None, testData:Option[MultiRankings]=None):Option[MultiRankings] = {
-    new Reranker(rankertype, metricScorer).trainPredict(train, modelfilename, testData)
+  def trainPredict(rankertype: RANKER_TYPE, metricScorer: MetricScorer, train: MultiRankings, modelfilename: Option[String] = None, testData: Option[MultiRankings] = None, submitTrainScore: (Double, String) => Unit = Reranker.printTrainScore, submitValidationScore: (Double, String) => Unit = Reranker.printValidationScore): Option[MultiRankings] = {
+    new Reranker(rankertype, metricScorer).trainPredict(train, modelfilename, testData, submitTrainScore, submitValidationScore)
   }
 
-  def loadPredict(rankertype:RANKER_TYPE, metricScorer:MetricScorer, modelfilename:String,testData:MultiRankings ):MultiRankings = {
+  def loadPredict(rankertype: RANKER_TYPE, metricScorer: MetricScorer, modelfilename: String, testData: MultiRankings): MultiRankings = {
     new Reranker(rankertype, metricScorer).loadPredict(modelfilename, testData)
   }
 
@@ -28,17 +27,17 @@ object RankTools {
    * Create a feature vector for re-ranking
    * @param description  unique ID of the datapoint
    * @param features  feature values with string-based feature names
-   *@param trainLabel optional, a label for training / validation
+   * @param trainLabel optional, a label for training / validation
    * @return
    */
-  def createFeatureVec(description:String, features:Seq[(String, Double)], trainLabel:Option[Int], defaultFeatures:Map[String, Double]=Map.empty):FeatureVec = {
+  def createFeatureVec(description: String, features: Seq[(String, Double)], trainLabel: Option[Int], defaultFeatures: Map[String, Double] = Map.empty): FeatureVec = {
     val uncoveredFeatures = defaultFeatures.keySet diff features.map(_._1).toSet
     val fullFeatures = features ++ uncoveredFeatures.map(feat => feat -> defaultFeatures(feat))
     new LabeledFeatureVec(fullFeatures, trainLabel, description)
   }
 
 
-  def setThreadPoolSize(poolsize:Int){
+  def setThreadPoolSize(poolsize: Int) {
     MyThreadPool.init(poolsize)
   }
 }
