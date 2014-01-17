@@ -24,10 +24,10 @@ import ciir.umass.edu.learning.RankList;
 public class APScorer extends MetricScorer {
 	//This class computes MAP from the *WHOLE* ranked list. "K" will be completely ignored.
 	//The reason is, if you want MAP@10, you really should be using NDCG@10 or ERR@10 instead.
-	
-	public HashMap<String, Integer> relDocCount = null;
-	
-	public APScorer()
+
+    public HashMap<String, Integer> relDocCount = new HashMap<String, Integer>();
+
+    public APScorer()
 	{
 		this.k = 0;//consider the whole list
 	}
@@ -35,7 +35,12 @@ public class APScorer extends MetricScorer {
 	{
 		return new APScorer();
 	}
-	public void loadExternalRelevanceJudgment(String qrelFile)
+
+    public void setRelDocCount(String queryId, Integer numRelDoc) {
+        relDocCount.put(queryId, numRelDoc);
+    }
+
+    public void loadExternalRelevanceJudgment(String qrelFile)
 	{
 		relDocCount = new HashMap<String, Integer>();
 		try {
