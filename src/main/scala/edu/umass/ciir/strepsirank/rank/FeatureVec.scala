@@ -10,24 +10,38 @@ import scala.Double
  */
 trait FeatureVec {
   def features: Seq[(String, Double)]
+
   def classLabelOpt: Option[Int]
-  def prediction:Option[Prediction]
-  def prediction_=(value:Option[Prediction])
+
+  def prediction: Option[Prediction]
+
+  def prediction_=(value: Option[Prediction])
+
   def description: String
-  def createImmutablePrediction(value:Prediction):FeatureVec
+
+  def createImmutablePrediction(value: Prediction): FeatureVec
 }
 
-class LabeledFeatureVec(val features:Seq[(String, Double)],val classLabelOpt:Option[Int], val description:String) extends FeatureVec {
-  private var _prediction:Option[Prediction] = None
+class LabeledFeatureVec(val features: Seq[(String, Double)],
+                        val classLabelOpt: Option[Int],
+                        val description: String) extends FeatureVec {
+  private var _prediction: Option[Prediction] = None
+
   def prediction = _prediction
-  def prediction_= (value:Option[Prediction]):Unit = {_prediction = value}
-  def createImmutablePrediction(value:Prediction):FeatureVec = {
-    val predictLabel = new LabeledFeatureVec(features = features, classLabelOpt = classLabelOpt, description = description)
-    predictLabel.prediction=Some(value)
+
+  def prediction_=(value: Option[Prediction]): Unit = {
+    _prediction = value
+  }
+
+  def createImmutablePrediction(value: Prediction): FeatureVec = {
+    val predictLabel = new LabeledFeatureVec(features = features, classLabelOpt = classLabelOpt,
+      description = description)
+    predictLabel.prediction = Some(value)
     predictLabel
   }
-  override def toString = description+" ("+classLabelOpt+") = "+prediction.toString
+
+  override def toString = description + " (" + classLabelOpt + ") = " + prediction.toString
 }
 
-case class Prediction(score:Double, rank:Int)
+case class Prediction(score: Double, rank: Int)
 

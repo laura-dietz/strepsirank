@@ -1,5 +1,9 @@
 package ciir.umass.edu.eval;
 
+import ciir.umass.edu.stats.RandomPermutationTest;
+import ciir.umass.edu.utilities.FileUtils;
+import ciir.umass.edu.utilities.SimpleMath;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
@@ -7,10 +11,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-
-import ciir.umass.edu.stats.RandomPermutationTest;
-import ciir.umass.edu.utilities.FileUtils;
-import ciir.umass.edu.utilities.SimpleMath;
 
 public class Analyzer {
 

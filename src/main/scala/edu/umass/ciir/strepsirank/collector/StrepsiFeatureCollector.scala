@@ -78,7 +78,10 @@ class StrepsiFeatureCollector(val featureSetName: String = "") extends mutable.H
     queryMap.update(entry, (classLabel, oldFeatures))
   }
 
-  def addClassAndFeaturesNoPrepend(query: String, entry: String, classLabel: Option[Int], features: Seq[(String, Double)]) {
+  def addClassAndFeaturesNoPrepend(query: String,
+                                   entry: String,
+                                   classLabel: Option[Int],
+                                   features: Seq[(String, Double)]) {
     val queryMap = this.getOrElseUpdate(query, new mutable.HashMap())
     val (_, oldFeatures) = queryMap.getOrElseUpdate(entry, (None, new ListBuffer[(String, Double)]))
     oldFeatures ++= features
@@ -109,7 +112,9 @@ class StrepsiFeatureCollector(val featureSetName: String = "") extends mutable.H
     }
   }
 
-  def featureView2(featureFilter: ((String, Double)) => Boolean, defaultFeatureFilter: ((String, Double)) => Boolean, newFeatureCollector: StrepsiFeatureCollector): StrepsiFeatureCollector = {
+  def featureView2(featureFilter: ((String, Double)) => Boolean,
+                   defaultFeatureFilter: ((String, Double)) => Boolean,
+                   newFeatureCollector: StrepsiFeatureCollector): StrepsiFeatureCollector = {
     for ((query, map) <- this) {
       for ((doc, (classLabel, features)) <- map) {
         newFeatureCollector.addClassAndFeatures(query, doc, classLabel, features.filter(featureFilter).toBuffer)
@@ -141,7 +146,8 @@ object StrepsiFeatureCollector {
 
     for ((query, map) <- fc) {
       for ((doc, (classLabel, features)) <- map) {
-        val line = Seq(query, doc, classLabel, features.map(pair => pair._1 + "\t" + pair._2).mkString("\t")).mkString("\t")
+        val line = Seq(query, doc, classLabel, features.map(pair => pair._1 + "\t" + pair._2).mkString("\t")).mkString(
+          "\t")
         out.write(line + "\n")
       }
     }

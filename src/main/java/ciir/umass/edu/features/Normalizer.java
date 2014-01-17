@@ -9,46 +9,45 @@
 
 package ciir.umass.edu.features;
 
+import ciir.umass.edu.learning.RankList;
+
 import java.util.HashSet;
 import java.util.List;
 
-import ciir.umass.edu.learning.RankList;
-
 /**
  * @author vdang
- *
- * Abstract class for feature normalization
+ *         <p/>
+ *         Abstract class for feature normalization
  */
 abstract public class Normalizer {
-	abstract public void normalize(RankList rl);
+    abstract public void normalize(RankList rl);
 
-	public void normalize(List<RankList> samples)
-	{
-		for(int i=0;i<samples.size();i++)
-			normalize(samples.get(i));
-	}
-	abstract public void normalize(RankList rl, int[] fids);
+    public void normalize(List<RankList> samples) {
+        for (int i = 0; i < samples.size(); i++)
+            normalize(samples.get(i));
+    }
 
-    public void normalize(List<RankList> samples, int[] fids)
-	{
-		for(int i=0;i<samples.size();i++)
-			normalize(samples.get(i), fids);
-	}
-	public int[] removeDuplicateFeatures(int[] fids)
-	{
-		HashSet<Integer> uniqueSet = new HashSet<Integer>();
-		for(int i=0;i<fids.length;i++)
-			if(!uniqueSet.contains(fids[i]))
-				uniqueSet.add(fids[i]);
-		fids = new int[uniqueSet.size()];
-		int fi=0;
-		for(Integer i : uniqueSet)
-			fids[fi++] = i.intValue();
-		return fids;
-	}
-	public String name()
-	{
-		//need overriding in subclass
-		return "";
-	}
+    abstract public void normalize(RankList rl, int[] fids);
+
+    public void normalize(List<RankList> samples, int[] fids) {
+        for (int i = 0; i < samples.size(); i++)
+            normalize(samples.get(i), fids);
+    }
+
+    public int[] removeDuplicateFeatures(int[] fids) {
+        HashSet<Integer> uniqueSet = new HashSet<Integer>();
+        for (int i = 0; i < fids.length; i++)
+            if (!uniqueSet.contains(fids[i]))
+                uniqueSet.add(fids[i]);
+        fids = new int[uniqueSet.size()];
+        int fi = 0;
+        for (Integer i : uniqueSet)
+            fids[fi++] = i.intValue();
+        return fids;
+    }
+
+    public String name() {
+        //need overriding in subclass
+        return "";
+    }
 }

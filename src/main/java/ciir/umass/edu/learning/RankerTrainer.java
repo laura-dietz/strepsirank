@@ -9,57 +9,58 @@
 
 package ciir.umass.edu.learning;
 
-import java.util.List;
-
 import ciir.umass.edu.metric.MetricScorer;
 import ciir.umass.edu.utilities.SimpleMath;
 
+import java.util.List;
+
 /**
  * @author vdang
- * 
- * This class is for users who want to use this library programmatically. It provides trained rankers of different types with respect to user-specified parameters.
+ *         <p/>
+ *         This class is for users who want to use this library programmatically. It provides trained rankers of different types with respect to user-specified parameters.
  */
 public class RankerTrainer {
 
-	protected RankerFactory rf = new RankerFactory();
-	protected double trainingTime = 0;
-	
-	public Ranker train(RANKER_TYPE type, List<RankList> train, int[] features, MetricScorer scorer)
-	{
-		Ranker ranker = rf.createRanker(type, train, features, scorer);
-		long start = System.nanoTime();
-		ranker.init();
-		ranker.learn();
-		trainingTime = System.nanoTime() - start;
-		//printTrainingTime();
-		return ranker;
-	}
-	public Ranker train(RANKER_TYPE type, List<RankList> train, List<RankList> validation, int[] features, MetricScorer scorer)
-	{
-		Ranker ranker = rf.createRanker(type, train, features, scorer);
-		ranker.setValidationSet(validation);
-		long start = System.nanoTime();
-		ranker.init();
-		ranker.learn();
-		trainingTime = System.nanoTime() - start;
-		//printTrainingTime();
-		return ranker;
-	}
+    protected RankerFactory rf = new RankerFactory();
+    protected double trainingTime = 0;
 
-    public Ranker createEmptyRanker(RANKER_TYPE type,int[] features, MetricScorer scorer)
-    {
-        Ranker r =rf.createRanker(type);
+    public Ranker train(RANKER_TYPE type, List<RankList> train, int[] features, MetricScorer scorer) {
+        Ranker ranker = rf.createRanker(type, train, features, scorer);
+        long start = System.nanoTime();
+        ranker.init();
+        ranker.learn();
+        trainingTime = System.nanoTime() - start;
+        //printTrainingTime();
+        return ranker;
+    }
+
+    public Ranker train(RANKER_TYPE type,
+                        List<RankList> train,
+                        List<RankList> validation,
+                        int[] features,
+                        MetricScorer scorer) {
+        Ranker ranker = rf.createRanker(type, train, features, scorer);
+        ranker.setValidationSet(validation);
+        long start = System.nanoTime();
+        ranker.init();
+        ranker.learn();
+        trainingTime = System.nanoTime() - start;
+        //printTrainingTime();
+        return ranker;
+    }
+
+    public Ranker createEmptyRanker(RANKER_TYPE type, int[] features, MetricScorer scorer) {
+        Ranker r = rf.createRanker(type);
         r.setFeatures(features);
         r.setMetricScorer(scorer);
         return r;
     }
 
-	public double getTrainingTime()
-	{
-		return trainingTime;
-	}
-	public void printTrainingTime()
-	{
-		System.out.println("Training time: " + SimpleMath.round((trainingTime)/1e9, 2) + " seconds");			
-	}
+    public double getTrainingTime() {
+        return trainingTime;
+    }
+
+    public void printTrainingTime() {
+        System.out.println("Training time: " + SimpleMath.round((trainingTime) / 1e9, 2) + " seconds");
+    }
 }

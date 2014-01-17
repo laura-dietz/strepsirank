@@ -14,7 +14,12 @@ import scala.Some
  * Time: 6:30 PM
  */
 class StrepsiReRanker(featureCollector: StrepsiFeatureCollector, rankerType: RANKER_TYPE) {
-  def trainTestSplit(trainQueries: Set[String], defaultFeatures: Option[Seq[(String, Double)]], testQueries: Option[Set[String]], modelfilename: Option[String] = None, submitTrainScore: (Double, String) => Unit = Reranker.printTrainScore, submitValidationScore: (Double, String) => Unit = Reranker.printValidationScore): Option[MultiRankings] = {
+  def trainTestSplit(trainQueries: Set[String],
+                     defaultFeatures: Option[Seq[(String, Double)]],
+                     testQueries: Option[Set[String]],
+                     modelfilename: Option[String] = None,
+                     submitTrainScore: (Double, String) => Unit = Reranker.printTrainScore,
+                     submitValidationScore: (Double, String) => Unit = Reranker.printValidationScore): Option[MultiRankings] = {
     val data = featureCollector
 
     val trainRankings = constructFeatureVectors(trainQueries, data, defaultFeatures)
@@ -24,15 +29,18 @@ class StrepsiReRanker(featureCollector: StrepsiFeatureCollector, rankerType: RAN
     val testRankings = constructFeatureVectors(testQuerySet, data, defaultFeatures)
 
     //    val resultOpt = RankTools.trainPredict(rankerType, new APScorer(), trainRankings, None,None)
-    val resultOpt = RankTools.trainPredict(rankerType, new APScorer(), trainRankings, modelfilename, Some(testRankings), submitTrainScore, submitValidationScore)
+    val resultOpt = RankTools.trainPredict(rankerType, new APScorer(), trainRankings, modelfilename, Some(testRankings),
+      submitTrainScore, submitValidationScore)
 
     resultOpt
   }
 
 
   def constructFeatureVectors(querySet: Set[String]
-                              , data: mutable.HashMap[String, mutable.HashMap[String, (Option[Int], mutable.Buffer[(String, Double)])]]
-                              , defaultFeatures: Option[Seq[(String, Double)]]): MultiRankings = {
+                              ,
+                              data: mutable.HashMap[String, mutable.HashMap[String, (Option[Int], mutable.Buffer[(String, Double)])]]
+                              ,
+                              defaultFeatures: Option[Seq[(String, Double)]]): MultiRankings = {
     val multiRankings = new ListBuffer[(String, Seq[FeatureVec])]
     for (query <- querySet) {
       val qdataOpt = data.get(query)
@@ -41,7 +49,9 @@ class StrepsiReRanker(featureCollector: StrepsiFeatureCollector, rankerType: RAN
         System.err.println("======================================================")
         System.err.println("======================================================")
         System.err.println("======================================================")
-        System.err.println("Can't find features for query " + query + ". Given features for queries " + data.keySet.mkString("(", ",", ")"))
+        System.err.println(
+          "Can't find features for query " + query + ". Given features for queries " + data.keySet.mkString("(", ",",
+            ")"))
         System.err.println("======================================================")
         System.err.println("======================================================")
       } else {

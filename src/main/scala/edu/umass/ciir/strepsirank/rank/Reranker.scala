@@ -15,7 +15,11 @@ import RankTools.MultiRankings
  */
 class Reranker(rankertype: RANKER_TYPE = RANKER_TYPE.COOR_ASCENT, metricScorer: MetricScorer = new APScorer()) {
 
-  def trainPredict(train: MultiRankings, modelfilename: Option[String] = None, testData: Option[MultiRankings] = None, submitTrainScore: (Double, String) => Unit = Reranker.printTrainScore, submitValidationScore: (Double, String) => Unit = Reranker.printValidationScore): Option[MultiRankings] = {
+  def trainPredict(train: MultiRankings,
+                   modelfilename: Option[String] = None,
+                   testData: Option[MultiRankings] = None,
+                   submitTrainScore: (Double, String) => Unit = Reranker.printTrainScore,
+                   submitValidationScore: (Double, String) => Unit = Reranker.printValidationScore): Option[MultiRankings] = {
     val rankListConv = new RankListConv(trackIgnoreFeature = false, ignoreNewFeatures = false)
 
     val trainingList = rankListConv.multiDataToRankList(train)
@@ -59,7 +63,9 @@ class Reranker(rankertype: RANKER_TYPE = RANKER_TYPE.COOR_ASCENT, metricScorer: 
   }
 
 
-  private def predict(rankListConv: RankListConv, test: RankTools.MultiRankings, ranker: Ranker): RankTools.MultiRankings = {
+  private def predict(rankListConv: RankListConv,
+                      test: RankTools.MultiRankings,
+                      ranker: Ranker): RankTools.MultiRankings = {
     val toPredictList = rankListConv.multiDataToRankList(test)
     val rankLists = ranker.rank(toPredictList)
     val predictedRankings = rankListConv.rankListsToMultiData(

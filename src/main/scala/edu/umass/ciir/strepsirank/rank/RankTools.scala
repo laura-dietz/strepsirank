@@ -1,7 +1,7 @@
 package edu.umass.ciir.strepsirank.rank
 
 import ciir.umass.edu.learning.{Ranker, RANKER_TYPE}
-import ciir.umass.edu.metric.{APScorer, MetricScorer}
+import ciir.umass.edu.metric.MetricScorer
 import ciir.umass.edu.utilities.MyThreadPool
 
 /**
@@ -15,11 +15,21 @@ object RankTools {
   Ranker.verbose = false
 
 
-  def trainPredict(rankertype: RANKER_TYPE, metricScorer: MetricScorer, train: MultiRankings, modelfilename: Option[String] = None, testData: Option[MultiRankings] = None, submitTrainScore: (Double, String) => Unit = Reranker.printTrainScore, submitValidationScore: (Double, String) => Unit = Reranker.printValidationScore): Option[MultiRankings] = {
-    new Reranker(rankertype, metricScorer).trainPredict(train, modelfilename, testData, submitTrainScore, submitValidationScore)
+  def trainPredict(rankertype: RANKER_TYPE,
+                   metricScorer: MetricScorer,
+                   train: MultiRankings,
+                   modelfilename: Option[String] = None,
+                   testData: Option[MultiRankings] = None,
+                   submitTrainScore: (Double, String) => Unit = Reranker.printTrainScore,
+                   submitValidationScore: (Double, String) => Unit = Reranker.printValidationScore): Option[MultiRankings] = {
+    new Reranker(rankertype, metricScorer).trainPredict(train, modelfilename, testData, submitTrainScore,
+      submitValidationScore)
   }
 
-  def loadPredict(rankertype: RANKER_TYPE, metricScorer: MetricScorer, modelfilename: String, testData: MultiRankings): MultiRankings = {
+  def loadPredict(rankertype: RANKER_TYPE,
+                  metricScorer: MetricScorer,
+                  modelfilename: String,
+                  testData: MultiRankings): MultiRankings = {
     new Reranker(rankertype, metricScorer).loadPredict(modelfilename, testData)
   }
 
@@ -30,7 +40,10 @@ object RankTools {
    * @param trainLabel optional, a label for training / validation
    * @return
    */
-  def createFeatureVec(description: String, features: Seq[(String, Double)], trainLabel: Option[Int], defaultFeatures: Map[String, Double] = Map.empty): FeatureVec = {
+  def createFeatureVec(description: String,
+                       features: Seq[(String, Double)],
+                       trainLabel: Option[Int],
+                       defaultFeatures: Map[String, Double] = Map.empty): FeatureVec = {
     val uncoveredFeatures = defaultFeatures.keySet diff features.map(_._1).toSet
     val fullFeatures = features ++ uncoveredFeatures.map(feat => feat -> defaultFeatures(feat))
     new LabeledFeatureVec(fullFeatures, trainLabel, description)
