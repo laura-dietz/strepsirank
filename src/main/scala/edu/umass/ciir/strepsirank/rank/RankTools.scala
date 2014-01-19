@@ -12,7 +12,7 @@ import ciir.umass.edu.utilities.MyThreadPool
  */
 object RankTools {
   type MultiRankings = Seq[(String, Seq[FeatureVec])]
-  Ranker.verbose = false
+  Ranker.verbose = true
 
 
   def trainPredict(rankertype: RANKER_TYPE,
@@ -21,9 +21,11 @@ object RankTools {
                    modelfilename: Option[String] = None,
                    testData: Option[MultiRankings] = None,
                    submitTrainScore: (Double, String) => Unit = Reranker.printTrainScore,
-                   submitValidationScore: (Double, String) => Unit = Reranker.printValidationScore): Option[MultiRankings] = {
+                   submitValidationScore: (Double, String) => Unit = Reranker.printValidationScore,
+                   submitWeightVector: (Seq[(String, Double)]) => Unit = (x) => {}
+                    ): Option[MultiRankings] = {
     new Reranker(rankertype, metricScorer).trainPredict(train, modelfilename, testData, submitTrainScore,
-      submitValidationScore)
+      submitValidationScore, submitWeightVector = submitWeightVector)
   }
 
   def loadPredict(rankertype: RANKER_TYPE,

@@ -16,10 +16,13 @@ import scala.Some
 class StrepsiReRanker(featureCollector: StrepsiFeatureCollector, rankerType: RANKER_TYPE) {
   def trainTestSplit(trainQueries: Set[String],
                      defaultFeatures: Option[Seq[(String, Double)]],
+                     metricScorer: APScorer,
                      testQueries: Option[Set[String]],
                      modelfilename: Option[String] = None,
                      submitTrainScore: (Double, String) => Unit = Reranker.printTrainScore,
-                     submitValidationScore: (Double, String) => Unit = Reranker.printValidationScore): Option[MultiRankings] = {
+                     submitValidationScore: (Double, String) => Unit = Reranker.printValidationScore,
+                     submitWeightVector: (Seq[(String, Double)]) => Unit = (x) => {}
+                      ): Option[MultiRankings] = {
     val data = featureCollector
 
     val trainRankings = constructFeatureVectors(trainQueries, data, defaultFeatures)
@@ -28,9 +31,10 @@ class StrepsiReRanker(featureCollector: StrepsiFeatureCollector, rankerType: RAN
     } else data.keySet.toSet diff trainQueries
     val testRankings = constructFeatureVectors(testQuerySet, data, defaultFeatures)
 
+
     //    val resultOpt = RankTools.trainPredict(rankerType, new APScorer(), trainRankings, None,None)
-    val resultOpt = RankTools.trainPredict(rankerType, new APScorer(), trainRankings, modelfilename, Some(testRankings),
-      submitTrainScore, submitValidationScore)
+    val resultOpt = RankTools.trainPredict(rankerType, metricScorer, trainRankings, modelfilename, Some(testRankings),
+      submitTrainScore, submitValidationScore, submitWeightVector)
 
     resultOpt
   }

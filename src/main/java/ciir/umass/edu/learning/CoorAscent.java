@@ -60,6 +60,10 @@ public class CoorAscent extends Ranker {
         PRINTLN("[Done]");
     }
 
+    public double[] getWeight() {
+        return weight;
+    }
+
     public void learn() {
         double[] regVector = new double[weight.length];
         copy(weight, regVector);//uniform weight distribution

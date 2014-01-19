@@ -1,6 +1,6 @@
 package edu.umass.ciir.strepsirank.rank
 
-import ciir.umass.edu.learning.{Ranker, RANKER_TYPE, RankerTrainer}
+import ciir.umass.edu.learning.{CoorAscent, Ranker, RANKER_TYPE, RankerTrainer}
 import ciir.umass.edu.metric.{MetricScorer, APScorer}
 import scala.collection.JavaConversions._
 import RankTools.MultiRankings
@@ -19,7 +19,9 @@ class Reranker(rankertype: RANKER_TYPE = RANKER_TYPE.COOR_ASCENT, metricScorer: 
                    modelfilename: Option[String] = None,
                    testData: Option[MultiRankings] = None,
                    submitTrainScore: (Double, String) => Unit = Reranker.printTrainScore,
-                   submitValidationScore: (Double, String) => Unit = Reranker.printValidationScore): Option[MultiRankings] = {
+                   submitValidationScore: (Double, String) => Unit = Reranker.printValidationScore,
+                   submitWeightVector: (Seq[(String, Double)]) => Unit = (x) => {}
+                    ): Option[MultiRankings] = {
     val rankListConv = new RankListConv(trackIgnoreFeature = false, ignoreNewFeatures = false)
 
     val trainingList = rankListConv.multiDataToRankList(train)
@@ -34,6 +36,11 @@ class Reranker(rankertype: RANKER_TYPE = RANKER_TYPE.COOR_ASCENT, metricScorer: 
       val r = rt.train(rankertype, trainingList, validationList, featureIndices, metricScorer)
       //      println(metricScorer.name + " on training data: " + r.getScoreOnTrainingData)
       //      println(metricScorer.name + " on validation data: " + r.getScoreOnValidationData)
+      r match {
+        case rc: CoorAscent =>
+          submitWeightVector(rankListConv.fc.featureReverseLookup.zip(rc.getWeight))
+        case _ =>
+      }
       submitTrainScore(r.getScoreOnTrainingData, metricScorer.name)
       submitValidationScore(r.getScoreOnValidationData, metricScorer.name)
       r
@@ -43,6 +50,7 @@ class Reranker(rankertype: RANKER_TYPE = RANKER_TYPE.COOR_ASCENT, metricScorer: 
       submitTrainScore(r.getScoreOnTrainingData, metricScorer.name)
       r
     }
+
 
 
 
