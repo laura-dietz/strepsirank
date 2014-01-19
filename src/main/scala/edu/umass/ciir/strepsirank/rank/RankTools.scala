@@ -12,7 +12,7 @@ import ciir.umass.edu.utilities.MyThreadPool
  */
 object RankTools {
   type MultiRankings = Seq[(String, Seq[FeatureVec])]
-  Ranker.verbose = true
+  Ranker.verbose = false
 
 
   def trainPredict(rankertype: RANKER_TYPE,

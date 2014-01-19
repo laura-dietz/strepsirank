@@ -15,8 +15,8 @@ object PerfectQueryExpansionMain {
   val mu = 100.0
 
   def computeTermDocFeature(tf: Int, docLen: Int, ctf: Int, cLen: Int, mu: Double): Double = {
-    //    math.log(tf + mu*ctf/cLen) - math.log(docLen+mu)
-    tf
+        math.log(tf + mu*ctf/cLen) - math.log(docLen+mu)
+//    tf
   }
 
   def doit(query: (String, Seq[String]), docs: Seq[Seq[String]], truth: Seq[Int]) {
@@ -35,7 +35,7 @@ object PerfectQueryExpansionMain {
 
     var weightVector: Seq[(String, Double)] = null
     def submitWeightVector(weightVectorSet: Seq[(String, Double)]) {
-      println("weightVector = " + weightVectorSet)
+      println("weightVector = " + weightVectorSet.sortBy(- _._2).take(30))
       weightVector = weightVectorSet
     }
 
