@@ -68,6 +68,7 @@ class FeatureConv(trackIgnoreFeature: Boolean, __frozen: Boolean = false) {
 
   def featureReverseLookup: Seq[String] = {
     val result = new Array[String](lastFeatureIdx + 1)
+    result(0) = "DONT USE THIS, THERE IS NO FEATURE WITH INDEX 0!"
 
     for ((fname, fidx) <- featureDescriptionMap) {
       result(fidx) = fname

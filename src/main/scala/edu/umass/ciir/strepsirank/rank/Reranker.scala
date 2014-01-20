@@ -37,8 +37,9 @@ class Reranker(rankertype: RANKER_TYPE = RANKER_TYPE.COOR_ASCENT, metricScorer: 
       //      println(metricScorer.name + " on training data: " + r.getScoreOnTrainingData)
       //      println(metricScorer.name + " on validation data: " + r.getScoreOnValidationData)
       r match {
-        case rc: CoorAscent =>
-          submitWeightVector(rankListConv.fc.featureReverseLookup.zip(rc.getWeight))
+        case rc: CoorAscent => {
+          submitWeightVector(rankListConv.fc.featureReverseLookup.drop(1).zip(rc.getWeight))
+        }
         case _ =>
       }
       submitTrainScore(r.getScoreOnTrainingData, metricScorer.name)
