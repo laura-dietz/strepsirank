@@ -1,7 +1,5 @@
 package edu.umass.ciir.strepsirank.ede
 
-import java.lang.String
-import scala.Predef.String
 
 /**
  * User: dietz
@@ -23,22 +21,23 @@ class ScoredDocument(val documentName: String, val rank: Int, val score: Double)
 
 
   override def toString: String = {
-    String.format("%s %d %s galago", documentName, rank, formatScore(score))
+    documentName + " " + rank + " " + formatScore(score) + " galago"
   }
 
   def toString(qid: String): String = {
-    String.format("%s Q0 %s %d %s galago", qid, documentName, rank, formatScore(score))
+    qid + " Q0 " + documentName + " " + rank + " " + formatScore(score) + " galago"
   }
 
   def toTRECformat(qid: String): String = {
-    String.format("%s Q0 %s %d %s galago", qid, documentName, rank, formatScore(score))
+    qid + " Q0 " + documentName + " " + rank + " " + formatScore(score) + " galago"
   }
 
   protected def formatScore(score: Double): String = {
     val difference: Double = Math.abs(score - score.asInstanceOf[Int])
     if (difference < 0.00001) {
-      return Integer.toString(score.asInstanceOf[Int])
+      Integer.toString(score.asInstanceOf[Int])
+    } else {
+      "%10.8f".format(score)
     }
-    String.format("%10.8f", score)
   }
 }

@@ -1,7 +1,5 @@
 package edu.umass.ciir.strepsirank.ede
 
-import edu.umass.ciir.strepsirank.ede.ScoredDocument
-
 
 /**
  * User: jdalton
