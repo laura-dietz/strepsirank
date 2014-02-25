@@ -1,11 +1,11 @@
-package edu.umass.ciir.strepsirank.ede
+package edu.umass.ciir.strepsirank.ede.predict
 
 import ciir.umass.edu.learning.{DataPoint, Ranker, RankerFactory}
 import java.io.File
-import edu.umass.ciir.strepsirank.ede.RunReranker.RerankConf
+import edu.umass.ciir.strepsirank.ede.ScoredDocument
 
-//import edu.umass.ciir.ede.trec.RunFileLoader
 import scala.io.Source
+import edu.umass.ciir.strepsirank.ede.predict.RunReranker.RerankConf
 
 /**
  * Created by jdalton on 1/20/14.
@@ -15,9 +15,6 @@ object RunReranker {
                         featureName:String,
                         outputDir:String, outputFile:String, queryfolds:Array[Array[Int]], stringPrefix:String,
                         qrels:String)
-
-
-
 }
 
 class RunReranker(conf:RerankConf, justWrite:Boolean) {
@@ -63,7 +60,7 @@ class RunReranker(conf:RerankConf, justWrite:Boolean) {
 
   val allResults = resultsByFold.flatten.toMap
 
-  EvalUtil.justWrite(conf.outputFile, allResults, conf.qrels , conf.stringPrefix)
+  WriteUtil.justWrite(conf.outputFile, allResults, conf.qrels , conf.stringPrefix)
 
   def loadSvmFeatureFile(featureFile:File) = {
 
