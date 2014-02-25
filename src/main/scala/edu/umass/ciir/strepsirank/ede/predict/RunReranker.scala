@@ -1,22 +1,14 @@
 package edu.umass.ciir.strepsirank.ede.predict
 
 import ciir.umass.edu.learning.{DataPoint, Ranker, RankerFactory}
-import java.io.File
 import edu.umass.ciir.strepsirank.ede.ScoredDocument
+import java.io.File
 
 import scala.io.Source
-import edu.umass.ciir.strepsirank.ede.predict.RunReranker.RerankConf
 
 /**
  * Created by jdalton on 1/20/14.
  */
-object RunReranker {
-  case class RerankConf(ltrModelBase:String, runFiles:Seq[String],featureDir:String,
-                        featureName:String,
-                        outputDir:String, outputFile:String, queryfolds:Array[Array[Int]], stringPrefix:String,
-                        qrels:String)
-}
-
 class RunReranker(conf:RerankConf, justWrite:Boolean) {
 
 
