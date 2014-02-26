@@ -1,10 +1,10 @@
 package edu.umass.ciir.strepsirank.ede.predict
 
 import ciir.umass.edu.learning.{DataPoint, Ranker, RankerFactory}
-import edu.umass.ciir.strepsirank.ede.ScoredDocument
 import java.io.File
 
 import scala.io.Source
+import edu.umass.ciir.strepsi.ScoredDocument
 
 /**
  * Created by jdalton on 1/20/14.

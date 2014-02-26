@@ -2,7 +2,8 @@ package edu.umass.ciir.strepsirank.ede.predict
 
 import scala.collection.mutable
 import java.io.{PrintWriter, File}
-import edu.umass.ciir.strepsirank.ede.{TrecRunWriter, ScoredDocument}
+import edu.umass.ciir.strepsi.ScoredDocument
+import edu.umass.ciir.strepsi.trec.TrecRunWriter
 
 object WriteUtil {
 

@@ -1,11 +1,11 @@
 package edu.umass.ciir.strepsirank.ede.predict
 
-import edu.umass.ciir.strepsirank.ede.ScoredDocument
 import scala.collection.mutable.ListBuffer
 import java.io._
 import scala.io.Source
 import scala.collection.immutable.Map
 import scala.collection.JavaConversions._
+import edu.umass.ciir.strepsi.ScoredDocument
 
 
 object RunFileLoader {

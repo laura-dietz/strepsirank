@@ -5,7 +5,7 @@ import ciir.umass.edu.learning.{DataPoint, Ranker, RankerFactory}
 import java.io.File
 import scala.io.Source
 import edu.umass.ciir.strepsirank.ede.featgen.FeaturesToSvmConverter
-import edu.umass.ciir.strepsirank.ede.ScoredDocument
+import edu.umass.ciir.strepsi.ScoredDocument
 
 /**
 * To evaluate performance of individual features, assumed test data split into 5 folds.
