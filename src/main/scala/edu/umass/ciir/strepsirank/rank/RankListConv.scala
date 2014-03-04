@@ -16,20 +16,21 @@ class RankListConv(trackIgnoreFeature: Boolean, ignoreNewFeatures: Boolean, norm
   val fc = new FeatureConv(trackIgnoreFeature)
   fc.ignoreNewFeatures = ignoreNewFeatures
 
-  var qidmap = IntMap.empty[String]
+  //  var qidmap = IntMap.empty[String]
 
-  val qidmapping = scala.collection.mutable.HashMap[String, Int]()
+  //  val qidmapping = scala.collection.mutable.HashMap[String, Int]()
 
 
   def createRankList(vectors: Seq[FeatureVec], qid: String): RankList = {
-    val currentQidInt = qidmapping.getOrElseUpdate(qid, {
-      qid.toInt
-    })
+    //    val currentQidInt = qidmapping.getOrElseUpdate(qid, {
+    // //      qid.toInt
+    //      qidmapping.size+1
+    //    })
 
-    qidmap += (currentQidInt -> qid)
+    //    qidmap += (currentQidInt -> qid)
     val rankList = new ListBuffer[DataPoint]
     for (vector <- vectors; if vector.classLabelOpt.isDefined) {
-      rankList += fc.convertToDataPoint(vector.features, vector.classLabelOpt.get, currentQidInt, vector.description)
+      rankList += fc.convertToDataPoint(vector.features, vector.classLabelOpt.get, qid, vector.description)
     }
     val wrappedRankList = new RankList(bufferAsJavaList(rankList))
     if (normalizeFeatures) {

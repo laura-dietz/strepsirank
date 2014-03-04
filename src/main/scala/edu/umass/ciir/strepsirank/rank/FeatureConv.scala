@@ -80,7 +80,7 @@ class FeatureConv(trackIgnoreFeature: Boolean, __frozen: Boolean = false) {
   // 3 qid:1 1:1 2:1 3:0 4:0.2 5:0 # 1A
   def convertToSvmLine(inputFeatures: Seq[(String, Double)],
                        classLabel: Int,
-                       qid: Int,
+                       qid: String,
                        comment: String = ""): String = {
     val featureStrBuf = ListBuffer[String]()
     for ((featName, featValue) <- inputFeatures) {
@@ -107,7 +107,7 @@ class FeatureConv(trackIgnoreFeature: Boolean, __frozen: Boolean = false) {
 
   def convertToDataPoint(inputFeatures: Seq[(String, Double)],
                          classLabel: Int,
-                         qid: Int,
+                         qid: String,
                          comment: String = ""): DataPoint = {
     val line = convertToSvmLine(inputFeatures, classLabel, qid, comment)
     new DataPoint(line)
