@@ -13,7 +13,8 @@ import java.io.FileWriter
  * Date: 12/9/13
  * Time: 6:00 PM
  */
-class StrepsiFeatureCollector(val featureSetName: String = "") extends mutable.HashMap[String, mutable.HashMap[String, (Option[Int], mutable.Buffer[(String, Double)])]] {
+
+class StrepsiKeyTypedFeatureCollector[Key](val featureSetName: String = "") extends mutable.HashMap[String, mutable.HashMap[Key, (Option[Int], mutable.Buffer[(String, Double)])]] {
   val defaultFeatures = new ListBuffer[(String, Double)]()
 
   def addDefaultFeatures(features: Seq[(String, Double)]) {
@@ -37,33 +38,33 @@ class StrepsiFeatureCollector(val featureSetName: String = "") extends mutable.H
     features.map(feat => (featureSetName + feat._1, feat._2))
   }
 
-  def addEntry(query: String, entry: String, classLabel: Option[Int]) {
+  def addEntry(query: String, entry: Key, classLabel: Option[Int]) {
     val queryMap = this.getOrElseUpdate(query, new mutable.HashMap())
     if (!queryMap.contains(entry)) {
       queryMap.update(entry, (classLabel, new ListBuffer[(String, Double)]))
     }
   }
 
-  def setClassLabel(query: String, entry: String, classLabel: Option[Int]) {
+  def setClassLabel(query: String, entry: Key, classLabel: Option[Int]) {
     val queryMap = this.getOrElseUpdate(query, new mutable.HashMap())
     val (_, features) = queryMap.getOrElseUpdate(entry, (classLabel, new ListBuffer[(String, Double)]))
     queryMap.update(entry, (classLabel, features))
   }
 
 
-  def addFeatures(query: String, entry: String, features: Seq[(String, Double)]) {
+  def addFeatures(query: String, entry: Key, features: Seq[(String, Double)]) {
     val queryMap = this.getOrElseUpdate(query, new mutable.HashMap())
     val (_, oldFeatures) = queryMap.getOrElseUpdate(entry, (None, new ListBuffer[(String, Double)]))
     oldFeatures ++= prependFeatureSetName(features)
   }
 
-  def addFeaturesNoPrepend(query: String, entry: String, features: Seq[(String, Double)]) {
+  def addFeaturesNoPrepend(query: String, entry: Key, features: Seq[(String, Double)]) {
     val queryMap = this.getOrElseUpdate(query, new mutable.HashMap())
     val (_, oldFeatures) = queryMap.getOrElseUpdate(entry, (None, new ListBuffer[(String, Double)]))
     oldFeatures ++= features
   }
 
-  def getFeatures(query: String, entry: String): Option[Seq[(String, Double)]] = {
+  def getFeatures(query: String, entry: Key): Option[Seq[(String, Double)]] = {
     // here we exploit that an option is a sequence of length 0 or 1, map.get(..) gives and Option
     for (queryMap <- this.get(query); (_, features) <- queryMap.get(entry)) yield {
       features
@@ -71,7 +72,7 @@ class StrepsiFeatureCollector(val featureSetName: String = "") extends mutable.H
   }
 
 
-  def addClassAndFeatures(query: String, entry: String, classLabel: Option[Int], features: Seq[(String, Double)]) {
+  def addClassAndFeatures(query: String, entry: Key, classLabel: Option[Int], features: Seq[(String, Double)]) {
     val queryMap = this.getOrElseUpdate(query, new mutable.HashMap())
     val (_, oldFeatures) = queryMap.getOrElseUpdate(entry, (None, new ListBuffer[(String, Double)]))
     oldFeatures ++= prependFeatureSetName(features)
@@ -79,7 +80,7 @@ class StrepsiFeatureCollector(val featureSetName: String = "") extends mutable.H
   }
 
   def addClassAndFeaturesNoPrepend(query: String,
-                                   entry: String,
+                                   entry: Key,
                                    classLabel: Option[Int],
                                    features: Seq[(String, Double)]) {
     val queryMap = this.getOrElseUpdate(query, new mutable.HashMap())
@@ -88,7 +89,7 @@ class StrepsiFeatureCollector(val featureSetName: String = "") extends mutable.H
     queryMap.update(entry, (classLabel, oldFeatures))
   }
 
-  def addFeature(query: String, entry: String, featureName: String, featureValue: Double) {
+  def addFeature(query: String, entry: Key, featureName: String, featureValue: Double) {
     val queryMap = this.getOrElseUpdate(query, new mutable.HashMap())
     val (_, oldFeatures) = queryMap.getOrElseUpdate(entry, (None, new ListBuffer[(String, Double)]))
     oldFeatures += (featureSetName + featureName) -> featureValue
@@ -101,7 +102,7 @@ class StrepsiFeatureCollector(val featureSetName: String = "") extends mutable.H
     }
   }
 
-  def featureView(featureFilter: ((String, Double)) => Boolean): mutable.HashMap[String, mutable.HashMap[String, (Option[Int], mutable.Buffer[(String, Double)])]] = {
+  def featureView(featureFilter: ((String, Double)) => Boolean): mutable.HashMap[String, mutable.HashMap[Key, (Option[Int], mutable.Buffer[(String, Double)])]] = {
     for ((query, map) <- this) yield {
       query ->
         (for ((doc, (classLabel, features)) <- map) yield {
@@ -114,7 +115,7 @@ class StrepsiFeatureCollector(val featureSetName: String = "") extends mutable.H
 
   def featureView2(featureFilter: ((String, Double)) => Boolean,
                    defaultFeatureFilter: ((String, Double)) => Boolean,
-                   newFeatureCollector: StrepsiFeatureCollector): StrepsiFeatureCollector = {
+                   newFeatureCollector: StrepsiKeyTypedFeatureCollector[Key]): StrepsiKeyTypedFeatureCollector[Key] = {
     for ((query, map) <- this) {
       for ((doc, (classLabel, features)) <- map) {
         newFeatureCollector.addClassAndFeatures(query, doc, classLabel, features.filter(featureFilter).toBuffer)
@@ -125,7 +126,7 @@ class StrepsiFeatureCollector(val featureSetName: String = "") extends mutable.H
     newFeatureCollector
   }
 
-  def merge(fcs: Seq[StrepsiFeatureCollector]) = {
+  def merge(fcs: Seq[StrepsiKeyTypedFeatureCollector[Key]]) = {
     for (fc <- fcs) {
       addDefaultFeatures(fc.defaultFeatures)
       for ((queryId, map) <- fc; (doc, (classLabel, features)) <- map) {
@@ -134,10 +135,30 @@ class StrepsiFeatureCollector(val featureSetName: String = "") extends mutable.H
     }
   }
 
+  def mergeOther[OtherKey](fcs: Seq[StrepsiKeyTypedFeatureCollector[OtherKey]], matcher:(OtherKey, Key) => Boolean) = {
+    for (fc <- fcs) {
+      addDefaultFeatures(fc.defaultFeatures)
+      for ((queryId, map) <- fc; (doc, (classLabel, features)) <- map) {
+
+        val thiskeys = this.getOrElse(queryId, Map.empty).keySet
+        val matchingkeys = thiskeys.filter(matcher(doc,_))
+        for(key <- matchingkeys) {
+          addClassAndFeatures(queryId, key, classLabel, features)
+        }
+      }
+    }
+  }
+
 }
 
 object StrepsiFeatureCollector {
-  def save(fc: StrepsiFeatureCollector, filename: String) {
+  def save(fc: StrepsiKeyTypedFeatureCollector[String], filename: String, keySerialization:String => String = x => x) {
+    saveSerial(fc, filename, keySerialization)
+  }
+  def load(filename: String, keyDeserialization:String => String = x => x):StrepsiKeyTypedFeatureCollector[String] = {
+    loadSerial(filename, keyDeserialization)
+  }
+  def saveSerial[KeyType](fc: StrepsiKeyTypedFeatureCollector[KeyType], filename: String, keySerialization:KeyType => String) {
     val out = new FileWriter(filename)
     out.write(fc.featureSetName + "\n\n")
 
@@ -146,7 +167,7 @@ object StrepsiFeatureCollector {
 
     for ((query, map) <- fc) {
       for ((doc, (classLabel, features)) <- map) {
-        val line = Seq(query, doc, classLabel, features.map(pair => pair._1 + "\t" + pair._2).mkString("\t")).mkString(
+        val line = Seq(query, keySerialization(doc), classLabel, features.map(pair => pair._1 + "\t" + pair._2).mkString("\t")).mkString(
           "\t")
         out.write(line + "\n")
       }
@@ -155,13 +176,13 @@ object StrepsiFeatureCollector {
     out.close()
   }
 
-  def load(filename: String): StrepsiFeatureCollector = {
+  def loadSerial[KeyType](filename: String, keyDeserialization:String => KeyType): StrepsiKeyTypedFeatureCollector[KeyType] = {
     val in = io.Source.fromFile(filename)
 
     val lines = in.getLines()
 
     val featureSetName = lines.next().trim()
-    val fc = new StrepsiFeatureCollector(featureSetName)
+    val fc = new StrepsiKeyTypedFeatureCollector[KeyType](featureSetName)
     lines.next()
     val nextlineInclBuffer = lines.next().trim()
     val nextline = StringTools.substringMinusEnd(nextlineInclBuffer, ")".length, "ListBuffer(".length)
@@ -200,7 +221,7 @@ object StrepsiFeatureCollector {
           fname -> value
         }
 
-      fc.addClassAndFeaturesNoPrepend(query, doc, classLabelOpt, features)
+      fc.addClassAndFeaturesNoPrepend(query, keyDeserialization(doc), classLabelOpt, features)
     }
 
     in.close()
