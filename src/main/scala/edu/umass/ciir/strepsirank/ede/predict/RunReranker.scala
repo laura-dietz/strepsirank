@@ -72,7 +72,7 @@ class RunReranker(conf:RerankConf, justWrite:Boolean, featureDescrToDocId:(Strin
 
   def rerankResults(ranker: Ranker, docSet: Set[String], expansionFeatures :  Seq[DataPoint], featureDescrToDocId:(String) => String ) : Seq[ScoredDocument] = {
 
-    val workingSetFeatrs = expansionFeatures.filter(m => docSet.contains(m.getDescription.replace("#","").trim))
+    val workingSetFeatrs = expansionFeatures.filter(m => docSet.contains(featureDescrToDocId(m.getDescription.replace("#","").trim)))
 
     val scoredDocuments = for (datapoint <- workingSetFeatrs) yield {
 
