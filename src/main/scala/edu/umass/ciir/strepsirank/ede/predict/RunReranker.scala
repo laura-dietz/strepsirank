@@ -11,48 +11,52 @@ import edu.umass.ciir.strepsi.ScoredDocument
  */
 class RunReranker(conf:RerankConf, justWrite:Boolean) {
 
+  def runReranker() {
 
-  new File(conf.outputDir).mkdirs()
+    new File(conf.outputDir).mkdirs()
 
-  val runs = for (rf <- conf.runFiles) yield {
-    val runFile = new File(rf)
-    val pooledDocs = RunFileLoader.readRunFileWithQuery(runFile, 1000, conf.stringPrefix)
-    pooledDocs
-  }
-
-  val resultsByFold = for (fold <- 0 to 4) yield {
-
-    val ltrModel = new RankerFactory().loadRanker(conf.ltrModelBase + fold + ".model")
-
-    val testFeatureFile = new File(conf.featureDir + "/" + conf.featureName+"_" + fold+"test.combined")
-    val features = loadSvmFeatureFile(testFeatureFile)
-    val featuresByQuery = features.groupBy(_.getID)
-
-    val foldQueries = conf.queryfolds(fold)
-    val batchResults = for (queryId <- foldQueries) yield {
-
-      val pooledDocs = runs.map(run => run(queryId.toString).map(_.documentName)).flatten.toSet
-      val queryFeaturesOption = featuresByQuery.get(queryId.toString) //, List[DataPoint]())
-
-      queryFeaturesOption match {
-        case Some(queryFeatures) => {
-          //val featuresByDoc = queryFeatures.map(f => f.getDescription -> f).toMap
-          val rerankedResults = rerankResults(ltrModel, pooledDocs, queryFeatures) take 1000
-          queryId -> rerankedResults
-        }
-        case None => {
-          println("WARN: No features for query: " + queryId)
-          queryId -> Seq[ScoredDocument]()
-        }
-      }
-
+    val runs = for (rf <- conf.runFiles) yield {
+      val runFile = new File(rf)
+      val pooledDocs = RunFileLoader.readRunFileWithQuery(runFile, 1000, conf.stringPrefix)
+      pooledDocs
     }
-    batchResults
+
+    val resultsByFold = for (fold <- 0 to 4) yield {
+
+      val ltrModel = new RankerFactory().loadRanker(conf.ltrModelBase + fold + ".model")
+
+      val testFeatureFile = new File(conf.featureDir + "/" + conf.featureName + "_" + fold + "test.combined")
+      val features = loadSvmFeatureFile(testFeatureFile)
+      val featuresByQuery = features.groupBy(_.getID)
+
+      val queriesInRuns = runs.flatMap(_.keys.map(_.toInt)).distinct
+      val foldQueries = conf.queryfolds(fold) intersect queriesInRuns
+      val batchResults = for (queryId <- foldQueries) yield {
+
+        val pooledDocs = runs.map(run => run(queryId.toString).map(_.documentName)).flatten.toSet
+        val queryFeaturesOption = featuresByQuery.get(queryId.toString) //, List[DataPoint]())
+
+        queryFeaturesOption match {
+          case Some(queryFeatures) => {
+            //val featuresByDoc = queryFeatures.map(f => f.getDescription -> f).toMap
+            val rerankedResults = rerankResults(ltrModel, pooledDocs, queryFeatures) take 1000
+            queryId -> rerankedResults
+          }
+          case None => {
+            println("WARN: No features for query: " + queryId)
+            queryId -> Seq[ScoredDocument]()
+          }
+        }
+
+      }
+      batchResults
+    }
+
+    val allResults = resultsByFold.flatten.toMap
+
+    WriteUtil.justWrite(conf.outputFile, allResults, conf.qrels, conf.stringPrefix)
+
   }
-
-  val allResults = resultsByFold.flatten.toMap
-
-  WriteUtil.justWrite(conf.outputFile, allResults, conf.qrels , conf.stringPrefix)
 
   def loadSvmFeatureFile(featureFile:File) = {
 
