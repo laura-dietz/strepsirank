@@ -9,7 +9,8 @@ import edu.umass.ciir.strepsi.ScoredDocument
 /**
  * Created by jdalton on 1/20/14.
  */
-class RunReranker(conf:RerankConf, justWrite:Boolean) {
+class RunReranker(conf:RerankConf, justWrite:Boolean, featureDescrToDocId:(String) => String = x => x) {
+
 
   def runReranker() {
 
@@ -39,7 +40,7 @@ class RunReranker(conf:RerankConf, justWrite:Boolean) {
         queryFeaturesOption match {
           case Some(queryFeatures) => {
             //val featuresByDoc = queryFeatures.map(f => f.getDescription -> f).toMap
-            val rerankedResults = rerankResults(ltrModel, pooledDocs, queryFeatures) take 1000
+            val rerankedResults = rerankResults(ltrModel, pooledDocs, queryFeatures, featureDescrToDocId) take 1000
             queryId -> rerankedResults
           }
           case None => {
@@ -69,13 +70,13 @@ class RunReranker(conf:RerankConf, justWrite:Boolean) {
   }
 
 
-  def rerankResults(ranker: Ranker, docSet: Set[String], expansionFeatures :  Seq[DataPoint] ) : Seq[ScoredDocument] = {
+  def rerankResults(ranker: Ranker, docSet: Set[String], expansionFeatures :  Seq[DataPoint], featureDescrToDocId:(String) => String ) : Seq[ScoredDocument] = {
 
     val workingSetFeatrs = expansionFeatures.filter(m => docSet.contains(m.getDescription.replace("#","").trim))
 
     val scoredDocuments = for (datapoint <- workingSetFeatrs) yield {
 
-      val docId = datapoint.getDescription.replace("#","").trim
+      val docId = featureDescrToDocId(datapoint.getDescription.replace("#","").trim)
       val score = ranker.eval(datapoint)
       //  println(score)
       val sd = new ScoredDocument(docId, -1, score)
