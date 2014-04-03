@@ -71,6 +71,13 @@ class StrepsiKeyTypedFeatureCollector[Key](val featureSetName: String = "") exte
     }
   }
 
+  def getFeaturesWithDefault(query:String, entry:Key):Seq[(String,Double)] = {
+    val localFeatures = getFeatures(query, entry).getOrElse(Seq.empty).toMap
+    for((fname, defvalue) <- defaultFeatures) yield {
+      fname -> localFeatures.getOrElse(fname, defvalue)
+    }
+  }
+
 
   def addClassAndFeatures(query: String, entry: Key, classLabel: Option[Int], features: Seq[(String, Double)]) {
     val queryMap = this.getOrElseUpdate(query, new mutable.HashMap())
