@@ -40,15 +40,17 @@ class FeaturesToSvmConverter(domainMapFile:String) {
     sb append query
     sb append " "
 
-    for ((feature, value) <- features) {
-      val domain = featureDomainMap.getOrElse(feature, -1) + 1
+    val featureDomainList = featureDomainMap.toSeq.sortBy(_._2)
+    val featureMap = features.toMap
+//    for ((feature, value) <- features) {
+//      val domain = featureDomainMap.getOrElse(feature, -1) + 1
+    for((featurename, domain) <- featureDomainList){
+      val value = featureMap.getOrElse(featurename, {println("warning, could not resolve feature with name "+featurename+" in  vector "+features);0.0})
       // skip some features
-      if (domain > 0) {
         sb append domain
         sb append ":"
         sb append value
         sb append " "
-      }
     }
 
     sb append "#"
