@@ -47,7 +47,7 @@ class FeaturesToSvmConverter(domainMapFile:String) {
     for((featurename, domain) <- featureDomainList){
       val value = featureMap.getOrElse(featurename, {println("warning, could not resolve feature with name "+featurename+" in  vector "+features);0.0})
       // skip some features
-        sb append domain
+        sb append domain   // possible incompatibility with 1-based domain maps
         sb append ":"
         sb append value
         sb append " "
