@@ -39,7 +39,7 @@ v 2.1
 - With little manual work, it can do BagBoo/Bagging LambaMART too.
 - For my personal use only: add support for 
   (1) external relevance judgment file [-qrel]
-  (2) output ranking in indri run file format (not exposed via cmd parameters) [-indri][requires doc-ID stored for each feature vector]
+  (2) output ranking in indri run file format (not exposed via cmd parameters) [-indri][requires psg-ID stored for each feature vector]
   (3) ignore ranked list without any relevant document [-hr]
 
 ========================
