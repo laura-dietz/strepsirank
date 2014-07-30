@@ -1,5 +1,7 @@
 package edu.umass.ciir.strepsirank.ede.featgen
 
+import java.io.PrintWriter
+
 import collection.mutable
 
 /**
@@ -61,4 +63,14 @@ class FeaturesToSvmConverter(domainMapFile:String) {
 
   }
 
+}
+
+object FeaturesToSvmConverter {
+  def writeDomainMapFile(domainMap:Iterable[(String,Int)], domainMapFile:String){
+    val out = new PrintWriter(domainMapFile)
+      for((key,idx) <- domainMap) {
+        out.write(key + "\t" + idx + "\n")
+      }
+    out.close()
+  }
 }

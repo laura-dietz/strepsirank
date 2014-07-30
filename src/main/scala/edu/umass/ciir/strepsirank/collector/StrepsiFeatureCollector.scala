@@ -34,6 +34,12 @@ class StrepsiKeyTypedFeatureCollector[Key](val featureSetName: String = "") exte
     }
   }
 
+  def computeFeatureUnion:Seq[String] = {
+    val featureSeq =
+      for((_, vals) <- this; (_, (_, features)) <- vals; (featurename, _) <- features) yield featurename
+    featureSeq.toSet.toSeq.sorted
+  }
+
   def prependFeatureSetName(features: Seq[(String, Double)]): Seq[(String, Double)] = {
     features.map(feat => (featureSetName + feat._1, feat._2))
   }
