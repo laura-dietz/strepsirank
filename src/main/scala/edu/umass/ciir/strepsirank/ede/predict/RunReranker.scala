@@ -63,7 +63,8 @@ class RunReranker(conf:RerankConf, justWrite:Boolean, featureDescrToDocId:(Strin
 
     val source = Source.fromFile(featureFile, "UTF-8")
     val datapoints = for (line <- source.getLines() ) yield {
-      val featureData = new DataPoint(line)
+      val cappedfeats = line.replaceAll("[eE][1-9][01-9][01-9]","e20")
+      val featureData = new DataPoint(cappedfeats)
       featureData
     }
     datapoints.toList
