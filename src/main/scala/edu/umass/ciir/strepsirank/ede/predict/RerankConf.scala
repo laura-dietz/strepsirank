@@ -8,5 +8,5 @@ package edu.umass.ciir.strepsirank.ede.predict
 case class RerankConf(ltrModelBase:String, runFiles:Seq[String],featureDir:String,
                       featureName:String,
                       outputDir:String, outputFile:String, queryfolds:Array[Array[Int]], stringPrefix:String,
-                      qrels:String){}
+                      qrels:String, numResults:Int){}
 

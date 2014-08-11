@@ -24,7 +24,7 @@ class SingleFeatureReranker(conf:RerankConf) {
 
   val runs = for (rf <- conf.runFiles) yield {
     val runFile = new File(rf)
-    val pooledDocs = RunFileLoader.readRunFileWithQuery(runFile, 1000, conf.stringPrefix)
+    val pooledDocs = RunFileLoader.readRunFileWithQuery(runFile, conf.numResults, conf.stringPrefix)
     pooledDocs
   }
 
@@ -49,7 +49,7 @@ class SingleFeatureReranker(conf:RerankConf) {
       val results = queryFeaturesOption match {
         case Some(queryFeatures) => {
           //val featuresByDoc = queryFeatures.map(f => f.getDescription -> f).toMap
-          val rerankedResults = rerankResults(idx, pooledDocs, queryFeatures) take 1000
+          val rerankedResults = rerankResults(idx, pooledDocs, queryFeatures) take conf.numResults
           queryId.toInt -> rerankedResults
         }
         case None => {

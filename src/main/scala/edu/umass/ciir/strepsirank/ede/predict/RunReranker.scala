@@ -18,7 +18,7 @@ class RunReranker(conf:RerankConf, justWrite:Boolean, featureDescrToDocId:(Strin
 
     val runs = for (rf <- conf.runFiles) yield {
       val runFile = new File(rf)
-      val pooledDocs = RunFileLoader.readRunFileWithQuery(runFile, 1000, conf.stringPrefix)
+      val pooledDocs = RunFileLoader.readRunFileWithQuery(runFile, conf.numResults, conf.stringPrefix)
       pooledDocs
     }
 
@@ -40,7 +40,7 @@ class RunReranker(conf:RerankConf, justWrite:Boolean, featureDescrToDocId:(Strin
         queryFeaturesOption match {
           case Some(queryFeatures) => {
             //val featuresByDoc = queryFeatures.map(f => f.getDescription -> f).toMap
-            val rerankedResults = rerankResults(ltrModel, pooledDocs, queryFeatures, featureDescrToDocId) take 1000
+            val rerankedResults = rerankResults(ltrModel, pooledDocs, queryFeatures, featureDescrToDocId) take conf.numResults
             queryId -> rerankedResults
           }
           case None => {
