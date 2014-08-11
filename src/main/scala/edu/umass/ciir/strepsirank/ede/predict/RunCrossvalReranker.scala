@@ -1,16 +1,15 @@
 package edu.umass.ciir.strepsirank.ede.predict
 
+import ciir.umass.edu.learning.{DataPoint, Ranker, RankerFactory}
 import java.io.File
 
-import ciir.umass.edu.learning.{DataPoint, Ranker, RankerFactory}
-import edu.umass.ciir.strepsi.ScoredDocument
-
 import scala.io.Source
+import edu.umass.ciir.strepsi.ScoredDocument
 
 /**
  * Created by jdalton on 1/20/14.
  */
-class RunReranker(conf:RerankConf, justWrite:Boolean, featureDescrToDocId:(String) => String = x => x) {
+class RunCrossvalReranker(conf:RerankConf, justWrite:Boolean, featureDescrToDocId:(String) => String = x => x) {
 
 
   def runReranker() {
@@ -23,16 +22,17 @@ class RunReranker(conf:RerankConf, justWrite:Boolean, featureDescrToDocId:(Strin
       pooledDocs
     }
 
+    val resultsByFold = for (fold <- 0 to 4) yield {
 
-      val ltrModel = new RankerFactory().loadRanker(conf.ltrModelBase + ".model")
+      val ltrModel = new RankerFactory().loadRanker(conf.ltrModelBase + fold + ".model")
 
-      val testFeatureFile = new File(conf.featureDir + "/" + conf.featureName + "_all")
+      val testFeatureFile = new File(conf.featureDir + "/" + conf.featureName + "_" + fold + "test")
       val features = loadSvmFeatureFile(testFeatureFile)
       val featuresByQuery = features.groupBy(_.getID)
 
       val queriesInRuns = runs.flatMap(_.keys.map(_.toInt)).distinct
-      val foldQueries = conf.queryfolds(0) intersect queriesInRuns
-      val allResults = for (queryId <- foldQueries) yield {
+      val foldQueries = conf.queryfolds(fold) intersect queriesInRuns
+      val batchResults = for (queryId <- foldQueries) yield {
 
         val pooledDocs = runs.map(run => run(queryId.toString).map(_.documentName)).flatten.toSet
         val queryFeaturesOption = featuresByQuery.get(queryId.toString) //, List[DataPoint]())
@@ -50,9 +50,12 @@ class RunReranker(conf:RerankConf, justWrite:Boolean, featureDescrToDocId:(Strin
         }
 
       }
+      batchResults
+    }
 
+    val allResults = resultsByFold.flatten.toMap
 
-    WriteUtil.justWrite(conf.outputFile, allResults.toMap, conf.qrels, conf.stringPrefix)
+    WriteUtil.justWrite(conf.outputFile, allResults, conf.qrels, conf.stringPrefix)
 
   }
 

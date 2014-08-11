@@ -10,60 +10,66 @@ import edu.umass.ciir.strepsi.ScoredDocument
 /**
 * To evaluate performance of individual features, assumed test data split into 5 folds.
 */
-class SingleFeatureReranker(conf:RerankConf) {
+class SingleFeatureReranker(conf:RerankConf, crossval:Boolean) {
 
   val domainMap = conf.featureDir + "/domainMap_eqe"
 
   val converter = new FeaturesToSvmConverter(domainMap)
   val featureDomain = converter.featureDomainMap
 
+  def runReranker(featureset:Option[Seq[String]]) {
 
-  //
-  //
-  new File(conf.outputDir).mkdirs()
+    //
+    //
+    new File(conf.outputDir).mkdirs()
 
-  val runs = for (rf <- conf.runFiles) yield {
-    val runFile = new File(rf)
-    val pooledDocs = RunFileLoader.readRunFileWithQuery(runFile, conf.numResults, conf.stringPrefix)
-    pooledDocs
-  }
-
-  val featuresByFold = for (fold <- 0 to 4) yield {
-
-
-    val testFeatureFile = new File(conf.featureDir + "/" + conf.featureName + "_" + fold + "test.combined")
-    val features = loadSvmFeatureFile(testFeatureFile)
-    features
-  }
-
-  val featuresByQuery = featuresByFold.flatten.groupBy(_.getID)
-
-  for ((feature, idx) <- featureDomain) {
-
-    println("reranking by : " + feature + " idx:" + idx)
-    val batchResults = for (queryId <- featuresByQuery.keySet) yield {
-
-      val pooledDocs = runs.map(run => run(queryId.toString).map(_.documentName)).flatten.toSet
-      val queryFeaturesOption = featuresByQuery.get(queryId.toString) //, List[DataPoint]())
-
-      val results = queryFeaturesOption match {
-        case Some(queryFeatures) => {
-          //val featuresByDoc = queryFeatures.map(f => f.getDescription -> f).toMap
-          val rerankedResults = rerankResults(idx, pooledDocs, queryFeatures) take conf.numResults
-          queryId.toInt -> rerankedResults
-        }
-        case None => {
-          println("WARN: No features for query: " + queryId)
-          queryId.toInt -> Seq[ScoredDocument]()
-        }
-      }
-
-      results
+    val runs = for (rf <- conf.runFiles) yield {
+      val runFile = new File(rf)
+      val pooledDocs = RunFileLoader.readRunFileWithQuery(runFile, conf.numResults, conf.stringPrefix)
+      pooledDocs
     }
 
-    val allResults = batchResults.toMap
+    val featuresByQuery = if (crossval) {
+      val featuresByFold = for (fold <- 0 to 4) yield {
+        val testFeatureFile = new File(conf.featureDir + "/" + conf.featureName + "_" + fold + "test")
+        val features = loadSvmFeatureFile(testFeatureFile)
+        features
+      }
+      featuresByFold.flatten.groupBy(_.getID)
+    } else {
+      val testFeatureFile = new File(conf.featureDir + "/" + conf.featureName + "_all")
+      val features = loadSvmFeatureFile(testFeatureFile)
+      features.groupBy(_.getID)
+    }
 
-    WriteUtil.justWrite(conf.outputFile + "-" + feature, allResults, conf.stringPrefix)
+    for ((feature, idx) <- featureDomain) {
+      if (featureset.isEmpty || featureset.get.contains(feature)) {
+        println("reranking by : " + feature + " idx:" + idx)
+        val batchResults = for (queryId <- featuresByQuery.keySet) yield {
+
+          val pooledDocs = runs.map(run => run(queryId.toString).map(_.documentName)).flatten.toSet
+          val queryFeaturesOption = featuresByQuery.get(queryId.toString) //, List[DataPoint]())
+
+          val results = queryFeaturesOption match {
+            case Some(queryFeatures) => {
+              //val featuresByDoc = queryFeatures.map(f => f.getDescription -> f).toMap
+              val rerankedResults = rerankResults(idx, pooledDocs, queryFeatures) take conf.numResults
+              queryId.toInt -> rerankedResults
+            }
+            case None => {
+              println("WARN: No features for query: " + queryId)
+              queryId.toInt -> Seq[ScoredDocument]()
+            }
+          }
+
+          results
+        }
+
+        val allResults = batchResults.toMap
+
+        WriteUtil.justWrite(conf.outputFile + "-" + feature, allResults, conf.stringPrefix)
+      }
+    }
   }
 
   def loadSvmFeatureFile(featureFile: File) = {
