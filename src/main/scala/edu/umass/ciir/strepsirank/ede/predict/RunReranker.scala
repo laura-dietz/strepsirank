@@ -26,7 +26,7 @@ class RunReranker(conf:RerankConf, justWrite:Boolean, featureDescrToDocId:(Strin
 
       val ltrModel = new RankerFactory().loadRanker(conf.ltrModelBase + fold + ".model")
 
-      val testFeatureFile = new File(conf.featureDir + "/" + conf.featureName + "_" + fold + "test.combined")
+      val testFeatureFile = new File(conf.featureDir + "/" + conf.featureName + "_" + fold + "test")
       val features = loadSvmFeatureFile(testFeatureFile)
       val featuresByQuery = features.groupBy(_.getID)
 
