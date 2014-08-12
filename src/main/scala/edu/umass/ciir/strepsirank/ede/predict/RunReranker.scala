@@ -31,7 +31,7 @@ class RunReranker(conf:RerankConf, justWrite:Boolean, featureDescrToDocId:(Strin
       val featuresByQuery = features.groupBy(_.getID)
 
       val queriesInRuns = runs.flatMap(_.keys.map(_.toInt)).distinct
-      val foldQueries = conf.queryfolds(0) intersect queriesInRuns
+      val foldQueries = queriesInRuns
       val allResults = for (queryId <- foldQueries) yield {
 
         val pooledDocs = runs.map(run => run(queryId.toString).map(_.documentName)).flatten.toSet
