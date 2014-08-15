@@ -24,37 +24,39 @@ class RunReranker(conf:RerankConf, justWrite:Boolean, featureDescrToDocId:(Strin
     }
 
 
-      val ltrModel = new RankerFactory().loadRanker(conf.ltrModelBase + ".model")
+    val ltrModel = new RankerFactory().loadRanker(conf.ltrModelBase + ".model")
 
-      val testFeatureFile = new File(conf.featureDir + "/" + conf.featureName + "_all")
-      val features = loadSvmFeatureFile(testFeatureFile)
-      val featuresByQuery = features.groupBy(_.getID)
+    val testFeatureFile = new File(conf.featureDir + "/" + conf.featureName + "_all")
+    val features = RunReranker.loadSvmFeatureFile(testFeatureFile)
+    val featuresByQuery = features.groupBy(_.getID)
 
-      val queriesInRuns = runs.flatMap(_.keys.map(_.toInt)).distinct
-      val foldQueries = queriesInRuns
-      val allResults = for (queryId <- foldQueries) yield {
+    val queriesInRuns = runs.flatMap(_.keys.map(_.toInt)).distinct
+    val foldQueries = queriesInRuns
+    val allResults = for (queryId <- foldQueries) yield {
 
-        val pooledDocs = runs.map(run => run(queryId.toString).map(_.documentName)).flatten.toSet
-        val queryFeaturesOption = featuresByQuery.get(queryId.toString) //, List[DataPoint]())
+      val pooledDocs = runs.map(run => run(queryId.toString).map(_.documentName)).flatten.toSet
+      val queryFeaturesOption = featuresByQuery.get(queryId.toString) //, List[DataPoint]())
 
-        queryFeaturesOption match {
-          case Some(queryFeatures) => {
-            //val featuresByDoc = queryFeatures.map(f => f.getDescription -> f).toMap
-            val rerankedResults = rerankResults(ltrModel, pooledDocs, queryFeatures, featureDescrToDocId) take conf.numResults
-            queryId -> rerankedResults
-          }
-          case None => {
-            println("WARN: No features for query: " + queryId)
-            queryId -> Seq[ScoredDocument]()
-          }
+      queryFeaturesOption match {
+        case Some(queryFeatures) => {
+          //val featuresByDoc = queryFeatures.map(f => f.getDescription -> f).toMap
+          val rerankedResults = RunReranker.rerankResults(ltrModel, pooledDocs, queryFeatures, featureDescrToDocId) take conf.numResults
+          queryId -> rerankedResults
         }
-
+        case None => {
+          println("WARN: No features for query: " + queryId)
+          queryId -> Seq[ScoredDocument]()
+        }
       }
+
+    }
 
 
     WriteUtil.justWrite(conf.outputFile, allResults.toMap, conf.qrels, conf.stringPrefix)
 
   }
+}
+  object RunReranker{
 
   def loadSvmFeatureFile(featureFile:File) = {
 
