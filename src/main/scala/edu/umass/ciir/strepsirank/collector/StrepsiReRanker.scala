@@ -13,7 +13,7 @@ import scala.Some
  * Date: 12/9/13
  * Time: 6:30 PM
  */
-class StrepsiReRanker(featureCollector: StrepsiFeatureCollector, rankerType: RANKER_TYPE) {
+class StrepsiReRanker[RankElem](featureCollector: StrepsiKeyTypedFeatureCollector[RankElem], rankerType: RANKER_TYPE, serial:(RankElem) =>String) {
   def trainTestSplit(trainQueries: Set[String],
                      defaultFeatures: Option[Seq[(String, Double)]],
                      metricScorer: APScorer,
@@ -42,7 +42,7 @@ class StrepsiReRanker(featureCollector: StrepsiFeatureCollector, rankerType: RAN
 
   def constructFeatureVectors(querySet: Set[String]
                               ,
-                              data: mutable.HashMap[String, mutable.HashMap[String, (Option[Int], mutable.Buffer[(String, Double)])]]
+                              data: mutable.HashMap[String, mutable.HashMap[RankElem, (Option[Int], mutable.Buffer[(String, Double)])]]
                               ,
                               defaultFeatures: Option[Seq[(String, Double)]]): MultiRankings = {
     val multiRankings = new ListBuffer[(String, Seq[FeatureVec])]
@@ -75,7 +75,7 @@ class StrepsiReRanker(featureCollector: StrepsiFeatureCollector, rankerType: RAN
               //            features.filter(pair => defaultFeatures.get.contains(pair._1))
               fullfeatures
             }
-          vecList += RankTools.createFeatureVec(doc, ffeatures, classLabel)
+          vecList += RankTools.createFeatureVec(serial(doc), ffeatures, classLabel)
         }
         multiRankings += (query -> vecList)
       }

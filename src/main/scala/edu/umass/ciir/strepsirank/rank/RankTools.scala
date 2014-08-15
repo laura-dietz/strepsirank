@@ -1,8 +1,10 @@
 package edu.umass.ciir.strepsirank.rank
 
-import ciir.umass.edu.learning.{Ranker, RANKER_TYPE}
+import ciir.umass.edu.learning.{DataPoint, Ranker, RANKER_TYPE}
 import ciir.umass.edu.metric.MetricScorer
 import ciir.umass.edu.utilities.MyThreadPool
+
+import scala.collection.mutable.ListBuffer
 
 /**
  * Static interface to the re-ranking lib
@@ -55,4 +57,34 @@ object RankTools {
   def setThreadPoolSize(poolsize: Int) {
     MyThreadPool.init(poolsize)
   }
+
+  def convertToDataPoint(inputFeatures: Seq[(String, Double)],
+    classLabel: Int,
+    qid: String,
+    comment: String = "", domainMap : Map[String, Int]): DataPoint = {
+    val line = convertToSvmLine(inputFeatures, classLabel, qid, comment, domainMap)
+    new DataPoint(line)
+  }
+
+  // 3 qid:1 1:1 2:1 3:0 4:0.2 5:0 # 1A
+  def convertToSvmLine(inputFeatures: Seq[(String, Double)],
+                       classLabel: Int,
+                       qid: String,
+                       comment: String = "", domainMap : Map[String, Int]): String = {
+    val featureStrBuf = ListBuffer[String]()
+    val domainList = domainMap.toList.sortBy(_._2)
+    val featureMap = inputFeatures.toMap
+
+    for ((featName, featIdx) <- domainList) {
+       val featVal = featureMap.get(featName)
+      featureStrBuf += s"${featIdx+1}:$featVal"
+    }
+
+    classLabel + " qid:" + qid + " " + featureStrBuf.mkString(" ") + (if (comment != "") {
+      " # " + comment
+    } else {
+      ""
+    })
+  }
+
 }
