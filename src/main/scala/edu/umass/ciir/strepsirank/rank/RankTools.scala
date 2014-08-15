@@ -76,7 +76,7 @@ object RankTools {
     val featureMap = inputFeatures.toMap
 
     for ((featName, featIdx) <- domainList) {
-       val featVal = featureMap.get(featName)
+       val featVal = featureMap.getOrElse(featName, 0.0)
       featureStrBuf += s"${featIdx+1}:$featVal"
     }
 
