@@ -22,6 +22,7 @@ class RankListConv(trackIgnoreFeature: Boolean, ignoreNewFeatures: Boolean, norm
 
 
   def createRankList(vectors: Seq[FeatureVec], qid: String): RankList = {
+    if(vectors.isEmpty) throw new IllegalArgumentException("Can't create RankList for query "+qid+" with empty feature vector list.")
     //    val currentQidInt = qidmapping.getOrElseUpdate(qid, {
     // //      qid.toInt
     //      qidmapping.size+1
@@ -64,6 +65,7 @@ class RankListConv(trackIgnoreFeature: Boolean, ignoreNewFeatures: Boolean, norm
   def multiDataToRankList(multidata: MultiRankings): List[RankList] = {
     val result = new ListBuffer[RankList]
     for ((qid, data) <- multidata) {
+      assert(data.nonEmpty, "cant generate rankList for queries with 0 feature vectors")
       val ranklist = createRankList(data, qid)
       result += ranklist
     }
