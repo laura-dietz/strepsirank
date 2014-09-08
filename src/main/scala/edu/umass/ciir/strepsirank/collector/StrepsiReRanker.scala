@@ -75,7 +75,10 @@ class StrepsiReRanker[RankElem](featureCollector: StrepsiKeyTypedFeatureCollecto
               //            features.filter(pair => defaultFeatures.get.contains(pair._1))
               fullfeatures
             }
-          vecList += RankTools.createFeatureVec(serial(doc), ffeatures, classLabel)
+
+          vecList += RankTools.createFeatureVec(serial(doc), ffeatures, classLabel,
+            (defaultFeatures.getOrElse(featureCollector
+              .defaultFeatures).toMap))
         }
         multiRankings += (query -> vecList)
       }

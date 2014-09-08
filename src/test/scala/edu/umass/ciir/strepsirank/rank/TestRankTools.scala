@@ -13,20 +13,20 @@ object TestRankTools {
 
   def exampleTrain: ListBuffer[FeatureVec] = {
     val train = new ListBuffer[FeatureVec]()
-    train += RankTools.createFeatureVec("train-1-1", Seq("a" -> 1, "b" -> 0), Some(1))
+    train += RankTools.createFeatureVec("train-1-1", Seq("a" -> 1, "b" -> 0), Some(1), Map.empty)
 
-    train += RankTools.createFeatureVec("train1-2", Seq("a" -> 1, "b" -> 0.5), Some(1))
-    train += RankTools.createFeatureVec("train0-1", Seq("a" -> 0, "b" -> 0), Some(0))
-    train += RankTools.createFeatureVec("train0-2", Seq("a" -> 0.1, "b" -> 0.5), Some(0))
+    train += RankTools.createFeatureVec("train1-2", Seq("a" -> 1, "b" -> 0.5), Some(1), Map.empty)
+    train += RankTools.createFeatureVec("train0-1", Seq("a" -> 0, "b" -> 0), Some(0), Map.empty)
+    train += RankTools.createFeatureVec("train0-2", Seq("a" -> 0.1, "b" -> 0.5), Some(0), Map.empty)
     train
   }
 
   def exampleTest: ListBuffer[FeatureVec] = {
     val test = new ListBuffer[FeatureVec]()
-    test += RankTools.createFeatureVec("test0-1", Seq("a" -> 0.2, "b" -> 0), Some(0))
-    test += RankTools.createFeatureVec("test1-1", Seq("a" -> 0.9, "b" -> 0), Some(1))
-    test += RankTools.createFeatureVec("test1-2", Seq("a" -> 1, "b" -> 0.9, "c" -> 0.5), Some(1))
-    test += RankTools.createFeatureVec("test0-2", Seq("a" -> 0.0, "b" -> 0.9), Some(0))
+    test += RankTools.createFeatureVec("test0-1", Seq("a" -> 0.2, "b" -> 0), Some(0), Map.empty)
+    test += RankTools.createFeatureVec("test1-1", Seq("a" -> 0.9, "b" -> 0), Some(1), Map.empty)
+    test += RankTools.createFeatureVec("test1-2", Seq("a" -> 1, "b" -> 0.9, "c" -> 0.5), Some(1), Map.empty)
+    test += RankTools.createFeatureVec("test0-2", Seq("a" -> 0.0, "b" -> 0.9), Some(0), Map.empty)
     test
   }
 

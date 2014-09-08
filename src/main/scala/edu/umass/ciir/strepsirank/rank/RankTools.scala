@@ -47,7 +47,7 @@ object RankTools {
   def createFeatureVec(description: String,
                        features: Seq[(String, Double)],
                        trainLabel: Option[Int],
-                       defaultFeatures: Map[String, Double] = Map.empty): FeatureVec = {
+                       defaultFeatures: Map[String, Double]): FeatureVec = {
     val uncoveredFeatures = defaultFeatures.keySet diff features.map(_._1).toSet
     val fullFeatures = features ++ uncoveredFeatures.map(feat => feat -> defaultFeatures(feat))
     new LabeledFeatureVec(fullFeatures, trainLabel, description)
